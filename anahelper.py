@@ -47,48 +47,6 @@ def lpeak_mmpz(LIR, lam, eta):
     return lam * (LIR/1e12)**eta
 
 
-def return_alpha_distribution(fitFrame):
-    """
-    Return arrays of alpha and errors from a fit pandas dataframe
-
-    Parameters
-    ----------
-    fitFrame : pandas DataFrame
-        Pandas pymc3 fit dataFrame
-
-    Returns
-    -------
-    alpha : ndarray
-        numpy array filled with median alpha values from fit.
-
-    lofitAlpha : ndarray
-        numpy array filled with 16th percentile LIR values from fit.
-
-    hifitAlpha : ndarray
-        numpy array filled with 84th percentile LIR values from fit.
-
-    errfitAlpha : ndarray
-        numpy array filled with 16th and 84th (1 sigma errors) LIR values from
-        fit.
-    """
-    alpha = []
-    lofitAlpha = []
-    hifitAlpha = []
-    indList = list(fitFrame.index)
-    for i in indList:
-        alpha.append(np.median(fitFrame.loc[i].trace_alpha))
-        lofitAlpha.append(np.percentile(fitFrame.loc[i].trace_alpha, 50) -
-                        np.percentile(fitFrame.loc[i].trace_alpha, 16))
-        hifitAlpha.append(np.percentile(fitFrame.loc[i].trace_alpha, 84) -
-                        np.percentile(fitFrame.loc[i].trace_alpha, 50))
-    alpha = np.array(alpha)
-    lofitAlpha = np.array(lofitAlpha)
-    hifitAlpha = np.array(hifitAlpha)
-    errfitAlpha = np.array(list(zip(lofitAlpha, hifitAlpha))).transpose()
-
-    return (alpha, lofitAlpha, hifitAlpha, errfitAlpha)
-
-
 def return_beta_distribution(fitFrame):
     """
     Return arrays of beta and errors from a fit pandas dataframe
