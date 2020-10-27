@@ -8,8 +8,15 @@ from astropy import units as u
 from matplotlib import pyplot as plt
 
 
+'''
+Analysis helper functions for mcirsed
+'''
+
+
 class h:
-    # class attributes
+    '''
+    define constants and arrays we will use repeatedly
+    '''
     hck = (c.h*c.c/c.k_B).to(u.micron*u.K).value  # units: micron*Kelvins
     fineRestWave = np.linspace(8, 1000, 5000)
     xHz = np.linspace((c.c/(8.*u.micron)).decompose().value,
@@ -17,17 +24,6 @@ class h:
     xWa = (c.c/xHz/u.Hz).decompose().to(u.um)[::-1].value
     deltaHz = xHz[1]-xHz[0]
     conversionFactor = 2.4873056783618645e-11  # mJy Hz Mpc^2 to lsol
-
-
-def IRLF(L):
-    irlfArray = np.zeros_like(L)
-    Lnot = 1.3e11
-    phiStar = 3.2e-4
-    alphaLF = -0.6
-    betaLF = -3.0
-    irlfArray[L <= Lnot] = phiStar * (L[L <= Lnot]/Lnot)**alphaLF
-    irlfArray[L > Lnot] = phiStar * (L[L > Lnot]/Lnot)**betaLF
-    return irlfArray
 
 
 def lineLIRTD(x, lam, eta):
