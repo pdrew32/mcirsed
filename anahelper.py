@@ -25,12 +25,26 @@ class h:
     conversionFactor = 2.4873056783618645e-11  # mJy Hz Mpc^2 to lsol
 
 
-def lpeak_mmpz(x, lam, eta):
+def lpeak_mmpz(LIR, lam, eta):
     '''
     mmpz function to return peak wavelength given lir, eta, lam.
     See Casey2020 for more detail (2020ApJ...900...68C)
+
+    Parameters
+    ----------
+    LIR : float or array
+        IR luminosity you're interested in
+    
+    lam : float
+        wavelength of the relation at LIR = 1e12
+
+    eta : float
+        slope of the relation in log-log space
+
+    Returns
+    -------
     '''
-    return lam * (x/1e12)**eta
+    return lam * (LIR/1e12)**eta
 
 
 def return_LIR_LPeak_Arrays(fitFrame):
