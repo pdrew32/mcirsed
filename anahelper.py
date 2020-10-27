@@ -13,9 +13,7 @@ Analysis helper functions for mcirsed
 
 
 class h:
-    '''
-    define constants and arrays we will use repeatedly
-    '''
+    """define constants and arrays we will use repeatedly"""
     hck = (c.h*c.c/c.k_B).to(u.micron*u.K).value  # units: micron*Kelvins
     fineRestWave = np.linspace(8, 1000, 5000)
     xHz = np.linspace((c.c/(8.*u.micron)).decompose().value,
@@ -26,8 +24,7 @@ class h:
 
 
 def lpeak_mmpz(LIR, lam, eta):
-    '''
-    mmpz function to return peak wavelength given lir, eta, lam.
+    """mmpz function to return peak wavelength given lir, eta, lam.
     See Casey2020 for more detail (2020ApJ...900...68C)
 
     Parameters
@@ -43,13 +40,15 @@ def lpeak_mmpz(LIR, lam, eta):
 
     Returns
     -------
-    '''
+    lpeak : float or array
+        the peak wavelength of the SED along the lir-lpeak
+        correlation at the given LIR, lam, and eta
+    """
     return lam * (LIR/1e12)**eta
 
 
 def return_LIR_LPeak_Arrays(fitFrame):
-    """
-    Return arrays of LIR, LPeak and their errors from a fit pandas dataframe
+    """Return arrays of LIR, LPeak and their errors from a fit pandas dataframe
 
     Parameters
     ----------
