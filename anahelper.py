@@ -1,7 +1,6 @@
 import mcirsed_ff
 import numpy as np
 import pandas as pd
-import findmyindex
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as c
 from astropy import units as u
@@ -474,50 +473,6 @@ def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     return np.array(arrList).transpose(), labels
 
 
-def temperatureGivenBetaLPeak_old(beta, lPeak, w0):
-    '''
-    Function to return a temperature given beta and peak wavelength
-    '''
-
-    TdustArrayCoarse = np.linspace(3, 300, 500)
-    lPeakArrayCoarse = np.ones(len(TdustArrayCoarse))
-    for i in list(range(len(TdustArrayCoarse))):
-        # print(i)
-        '''
-        lambdaPeak doesn't depend on norm1 or alpha, so setting them to 2.
-        '''
-        lPeakArrayCoarse[i] = mcirsed_ff.lambdaPeak(2., TdustArrayCoarse[i], 2.,
-                                               beta, w0)
-    closeInd = findmyindex.index(lPeakArrayCoarse, lPeak)
-    lPeakArrayFine = np.logspace(np.log10(lPeakArrayCoarse[closeInd-1]),
-                                 np.log10(lPeakArrayCoarse[closeInd+1]),
-                                 10000)[::-1]
-    TdustArrayFine = np.logspace(np.log10(TdustArrayCoarse[closeInd-1]),
-                                 np.log10(TdustArrayCoarse[closeInd+1]),
-                                 10000)[::-1]
-
-    closesrInd = findmyindex.index(lPeakArrayFine, lPeak)
-    lPeakArrayFiner = np.logspace(np.log10(lPeakArrayFine[closesrInd-1]),
-                                  np.log10(lPeakArrayFine[closesrInd+1]),
-                                  10000)
-    TdustArrayFiner = np.logspace(np.log10(TdustArrayFine[closesrInd-1]),
-                                  np.log10(TdustArrayFine[closesrInd+1]),
-                                  10000)
-
-    closestInd = findmyindex.index(lPeakArrayFiner, lPeak)
-    return TdustArrayFiner[closestInd]
-
-
-"""def temperatureGivenBetaLPeak(beta, lPeak, w0):
-    '''
-    Function to return a temperature given beta and peak wavelength
-    '''
-    tdusts = np.logspace(np.log10(3), np.log10(300), 100000)
-    lpeak = np.vectorize(mcirsed_ff.lambdaPeak)
-    lpeaks = lpeak(2., tdusts, 2., beta, w0)
-    ind = np.searchsorted()
-    return """
-
 
 def create_tdust_lpeak_grid(beta, w0, path):
     tdusts = np.logspace(np.log10(3), np.log10(300), 100000)
@@ -599,37 +554,6 @@ def normalizationForFluxLimit(LIR, z, Tdust, alpha, beta, w0):
     return LIR * (1+z) / (fourPiLumDistSquared * deltaHzfiner * np.sum(mcirsed_ff.SnuNoBumpNoNorm(Tdust, alpha, beta, w0, xWafiner, finerRestWave, h.hck)))
 
 
-def fluxLimit60um(fluxLimit, z, lPeak, fixAlphaValue, fixBetaValue, fixW0Value):
-    """
-    Find the parameters associated with the 60 um flux limit.
-    The difference with the function fluxLimit60umLIR_LPeak is that this function
-    does not allow lPeak to vary.
-    """
-
-    Tdust = temperatureGivenBetaLPeak(fixBetaValue, lPeak, fixW0Value)
-    possibleLIRs = np.logspace(1, 14, 500)
-    Snu60List = np.zeros([len(possibleLIRs)])
-    norm1List = np.zeros(len(possibleLIRs))
-    for i in list(range(len(possibleLIRs))):
-        norm1List[i] = normalization(possibleLIRs[i], z, Tdust, fixAlphaValue, fixBetaValue, fixW0Value)
-        Snu60List[i] = mcirsed_ff.SnuNoBump(norm1List[i], Tdust, fixAlphaValue, fixBetaValue, fixW0Value, 60.0/(1+z), h.fineRestWave, h.hck)
-    closeInd = findmyindex.index(Snu60List, fluxLimit)
-
-    possibleLIRsFine = np.linspace(possibleLIRs[closeInd-1], possibleLIRs[closeInd+1], 500)
-    Snu60ListFine = np.zeros([len(possibleLIRsFine)])
-    norm1ListFine = np.zeros(len(possibleLIRsFine))
-    for i in list(range(len(possibleLIRsFine))):
-        norm1ListFine[i] = normalization(possibleLIRsFine[i], z, Tdust, fixAlphaValue, fixBetaValue, fixW0Value)
-        Snu60ListFine[i] = mcirsed_ff.SnuNoBump(norm1ListFine[i], Tdust, fixAlphaValue, fixBetaValue, fixW0Value, 60.0/(1+z), h.fineRestWave, h.hck)
-    closerInd = findmyindex.index(Snu60ListFine, fluxLimit)
-    # print('delta Snu:')
-    # print(min(abs(fluxLimit-Snu60ListFine)))
-    # print('calculated Snu:')
-    # print(Snu60ListFine[closerInd])
-
-    return norm1ListFine[closerInd], Tdust
-
-
 def fluxLimit60umLIR_LPeak(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value, oldDataPath, newSavePath, plotLimit=False, saveAsDataFrame=True):
     # fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value, nPoints
     """
@@ -665,31 +589,7 @@ def fluxLimit60umLIR_LPeak(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value
         frame.to_csv(newSavePath)
 
     return LIRList, possibleLPeaks
-'''
 
-    possibleLIRs = np.logspace(6, 13, nPoints) # 8, 13
-    possibleLPeaks = np.logspace(np.log10(70), np.log10(300), nPoints) # 70, 210 # 30, 300 # 
-
-    Snu60List = np.zeros([nPoints, nPoints])
-    norm1List = np.zeros(nPoints)  # np.zeros([nPoints, nPoints])
-    possibleTdusts = np.zeros(nPoints)
-    closeInd = np.zeros(nPoints, dtype=int)
-    norm1ListFinal = np.zeros(nPoints)
-    for i in list(range(nPoints)):
-        print('calculating possible dust temps '+ str(i) + '/' + str(nPoints-1))
-        possibleTdusts[i] = temperatureGivenBetaLPeak(fixBetaValue, possibleLPeaks[i], fixW0Value)
-        norm1List[i] = normalizationForFluxLimit(possibleLIRs[i], z, possibleTdusts[i], fixAlphaValue, fixBetaValue, fixW0Value)
-    for i in list(range(nPoints)):
-        print('calculating flux densities: ' + str(i) + '/'+str(nPoints))
-        for j in list(range(nPoints)):
-            Snu60List[i,j] = mcirsed_ff.SnuNoBump(norm1List[i], possibleTdusts[j], fixAlphaValue, fixBetaValue, fixW0Value, 60.0/(1+z), h.fineRestWave, h.hck)
-    for i in list(range(nPoints)):
-        print('finding index of best normalization: ' + str(i) + '/'+str(nPoints))
-        closeInd[i] = findmyindex.index(Snu60List[:,i], fluxLimit)
-        norm1ListFinal[i] = norm1List[closeInd[i]]
-
-    return norm1ListFinal, possibleTdusts
-'''
 
 def fluxLimit250umLIR_LPeak(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value, oldDataPath, newSavePath, plotLimit=False, saveAsDataFrame=True):
     """
@@ -724,115 +624,6 @@ def fluxLimit250umLIR_LPeak(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Valu
         frame.to_csv(newSavePath)
 
     return LIRList, possibleLPeaks
-
-
-def fluxLimit250umLIR_LPeakOldest(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value, nPoints, limLIRLow, limLIRHigh, limLPeakLow, limLPeakHigh):
-    """
-    Find the parameters associated with the 250 um flux limit for the LIR_LP plot.
-    The difference with the function fluxLimit60um is that this allows lPeak to vary.
-    """
-
-    possibleLIRs = np.logspace(np.log10(limLIRLow), np.log10(limLIRHigh), nPoints) # np.logspace(6, 13, nPoints)
-    possibleLPeaks = np.logspace(np.log10(limLPeakLow), np.log10(limLPeakHigh), nPoints) # np.logspace(np.log10(70), np.log10(300), nPoints)
-    xx, yy = np.meshgrid(possibleLIRs, possibleLPeaks)
-
-    # Snu250List = np.zeros([nPoints, nPoints])
-    Snu250List = xx * 0
-    norm1List = np.zeros(nPoints)  # np.zeros([nPoints, nPoints])
-    possibleTdusts = np.zeros(nPoints)
-    closeInd = np.zeros(nPoints, dtype=int)
-    norm1ListFinal = np.zeros(nPoints)
-    for i in list(range(nPoints)):
-        print('calculating possible dust temps '+ str(i) + '/' + str(nPoints-1))
-        possibleTdusts[i] = temperatureGivenBetaLPeak(fixBetaValue, possibleLPeaks[i], fixW0Value)
-        norm1List[i] = normalizationForFluxLimit(possibleLIRs[i], z, possibleTdusts[i], fixAlphaValue, fixBetaValue, fixW0Value)
-    for i in list(range(nPoints)):
-        print('calculating flux densities: ' + str(i) + '/'+str(nPoints))
-        for j in list(range(nPoints)):
-            Snu250List[i,j] = mcirsed_ff.SnuNoBump(norm1List[i], possibleTdusts[j], fixAlphaValue, fixBetaValue, fixW0Value, 250.0/(1+z), h.fineRestWave, h.hck)
-    for i in list(range(nPoints)):
-        print('finding index of best normalization: ' + str(i) + '/'+str(nPoints))
-        closeInd[i] = findmyindex.index(Snu250List[:,i], fluxLimit)
-        norm1ListFinal[i] = norm1List[closeInd[i]]
-
-    return norm1ListFinal, possibleTdusts
-
-
-def fluxLimit250umLIR_LPeakOld(fluxLimit, z, fixAlphaValue, fixBetaValue, fixW0Value, nPoints, limLIRLow, limLIRHigh, limLPeakLow, limLPeakHigh):
-    """
-    Find the parameters associated with the 250 um flux limit for the LIR_LP plot.
-    The difference with the function fluxLimit60um is that this allows lPeak to vary.
-    """
-
-    possibleLIRs = np.logspace(np.log10(limLIRLow), np.log10(limLIRHigh), nPoints) # np.logspace(6, 13, nPoints)
-    possibleLPeaks = np.logspace(np.log10(limLPeakLow), np.log10(limLPeakHigh), nPoints) # np.logspace(np.log10(70), np.log10(300), nPoints)
-    xx, yy = np.meshgrid(possibleLIRs, possibleLPeaks)
-    # fourPiLumDistSquared = ((4*np.pi*cosmo.luminosity_distance(z)**2.).value * h.conversionFactor)
-
-    TdustList = np.zeros(np.shape(yy[:, 0]))
-    TdustError = np.zeros(np.shape(yy[:, 0]))
-    for i in list(range(len(yy[:, 0]))):
-        print('calculating grid dust temps '+ str(i) + '/' + str(nPoints-1))
-        TdustList[i] = temperatureGivenBetaLPeak(fixBetaValue, yy[i, 0], fixW0Value)
-        TdustError[i] = checkTemperature(fixBetaValue, yy[i, 0], fixW0Value, TdustList[i], verbose=False)
-
-
-    testnorm = TdustList * 0
-    testCheckLIR = testnorm * 0
-    testLIRVals = testnorm * 0
-    for i in list(range(len(xx[0, :]))): 
-        testInputLIR = 1e10
-        testInputz = 0.05
-        fourPiLumDistSquaredtest = ((4*np.pi*cosmo.luminosity_distance(testInputz)**2.).value * h.conversionFactor)
-        testnorm[i] = normalizationForFluxLimit(testInputLIR, testInputz, TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value)
-        testCheckLIR[i] = checkLIR(testnorm[i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, testInputz, testInputLIR, verbose=True)
-        testLIRVals[i] = mcirsed_ff.IRLum(testnorm[i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, h.fineRestWave, h.fineRestWave, h.hck, h.deltaHz, fourPiLumDistSquaredtest) / (1+testInputz)
-
-        plt.plot(h.fineRestWave, mcirsed_ff.SnuNoBump(testnorm[i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, h.fineRestWave, h.fineRestWave, h.hck))
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.show()
-
-    norm1List = xx * 0
-    checkLIRList = xx * 0
-    for i in list(range(len(xx[0, :]))):
-        print('calculating normalizations to match LIRs ' + str(i) + '/' + str(nPoints-1))
-        for j in list(range(len(yy[:, 0]))):
-            norm1List[i, j] = normalizationForFluxLimit(xx[0, i], z, TdustList[j], fixAlphaValue, fixBetaValue, fixW0Value)  # use 0th index in xx[0, i] because xx[:, i] are all the same
-            checkLIRList[i, j] = checkLIR(norm1List[i, j], TdustList[j], fixAlphaValue, fixBetaValue, fixW0Value, z, xx[i, j], verbose=False)
-
-    testLum = np.zeros(np.shape(yy[:, 0]))
-    for i in list(range(len(xx[0, :]))):
-        # for j in list(range(len(yy[:, 0]))):
-        #     print(str(i) + ' ' + str(j))
-        plt.plot(h.fineRestWave, mcirsed_ff.SnuNoBump(norm1List[i, i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, h.fineRestWave, h.fineRestWave, h.hck))
-        testLum[i] = mcirsed_ff.IRLum(norm1List[0, i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, h.fineRestWave, h.fineRestWave, h.hck, h.deltaHz, fourPiLumDistSquared)
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.show()
-
-    Snu250List = norm1List * 0
-    for i in list(range(nPoints)):
-        print('calculating flux densities: ' + str(i) + '/'+str(nPoints))
-        for j in list(range(nPoints)):
-            Snu250List[i,j] = mcirsed_ff.SnuNoBump(norm1List[i, j], TdustList[j], fixAlphaValue, fixBetaValue, fixW0Value, 250.0/(1+z), h.fineRestWave, h.hck)
-
-    norm1ListFinal = TdustList * 0
-    closeInd = np.zeros(nPoints, dtype=int)
-    for i in list(range(nPoints)):
-        print('finding index of best normalization: ' + str(i) + '/'+str(nPoints))
-        closeInd[i] = findmyindex.index(Snu250List[:,i], fluxLimit)
-        norm1ListFinal[i] = norm1List[closeInd[i]]
-
-    '''liroutputList = np.zeros(np.shape(xx[0, :]))
-    for i in list(range(len(xx[0, :]))):
-        liroutputList[i] = mcirsed_ff.IRLum(norm1List[i], TdustList[i], fixAlphaValue, fixBetaValue, fixW0Value, h.xWa, h.fineRestWave, h.hck, h.deltaHz, fourPiLumDistSquared)'''
-
-
-
-    # mcirsed_ff.SnuNoBump(norm1List, TdustList, fixAlphaValue, fixBetaValue, fixW0Value, 250.0/(1+z), h.fineRestWave, h.hck)
-
-    return norm1ListFinal, TdustList
 
 
 def saveLPeakTdustConversion(nCurves, limLPeakLow, limLPeakHigh, fixBetaValue, fixW0Value, savePath):
