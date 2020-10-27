@@ -1,6 +1,6 @@
-import mcirsed_ff
 import numpy as np
 import pandas as pd
+import mcirsed_ff
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as c
 from astropy import units as u
@@ -25,39 +25,12 @@ class h:
     conversionFactor = 2.4873056783618645e-11  # mJy Hz Mpc^2 to lsol
 
 
-def lineLIRTD(x, lam, eta):
+def lpeak_mmpz(x, lam, eta):
+    '''
+    mmpz function to return peak wavelength given lir, eta, lam.
+    See Casey2020 for more detail (2020ApJ...900...68C)
+    '''
     return lam * (x/1e12)**eta
-
-
-def medFunc(x):
-    '''
-    return median. for vectorization of operations in pandas
-    '''
-    return np.median(x)
-    
-
-def lowSigma(x):
-    '''
-    return 16th percentile for vectorization of operations in pandas
-    '''
-    return np.median(x) - np.percentile(x, 16)
-
-
-def higSigma(x):
-    '''
-    return 84th percentile for vectorization of operations in pandas
-    '''
-    return np.percentile(x, 84) - np.median(x)
-
-
-def fixedValueReturns1(x):
-    '''
-    return 84th percentile for vectorization of operations in pandas
-    '''
-    n = np.empty_like(x)
-    nones = x == n
-
-    return nones
 
 
 def return_LIR_LPeak_Arrays(fitFrame):
