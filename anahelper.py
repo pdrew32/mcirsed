@@ -205,8 +205,7 @@ def fixedValueReturns1(x):
 
 
 def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
-    """
-    Return labels and data in a format for easy use with corner.py
+    """Return labels and data in a format for easy use with corner.py
 
     Returns
     -------
@@ -216,9 +215,7 @@ def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     labels : list
         numpy array filled with float labels of each successful parameter
         allowed to vary.
-
     """
-
     labels = ['norm1', 'log(LIR)', 'lPeak', 'Tdust']
     arrList = [trace['norm1'], trace['LIR'], trace['lPeak'],
                trace['Tdust']]
@@ -238,38 +235,28 @@ def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     return np.array(arrList).transpose(), labels
 
 
-
 def create_tdust_lpeak_grid(beta, w0, path):
+    """save a conversion grid between dust temps and peak waves to csv at path
+       to avoid having to calculate it every time we want to convert
+    
+    Parameters:
+    -----------
+    beta : float
+        spectral emissivity index to generate SEDs
+
+    w0 : float
+        wavelength where opacity of modified blackbody is 1. used to generate
+        seds
+
+    path : string
+        where to save the csv output
+    """
     tdusts = np.logspace(np.log10(3), np.log10(300), 100000)
     lpeak = np.vectorize(mcirsed_ff.lambdaPeak)
     lpeaks = lpeak(2., tdusts, 2., beta, w0)
     t_l = pd.DataFrame(data=np.array([lpeaks, tdusts]).transpose(), columns=['lpeak', 'Tdust'])
     t_l.to_csv(path)
-
     return
-
-
-
-def checkTemperature(beta, lPeak, w0, TdustOutput, verbose=True):
-    '''
-    Make sure the output dust temperature and input beta returns the lPeak
-    input.
-    '''
-
-    b = mcirsed_ff.lambdaPeak(2., TdustOutput, 2., beta, w0, h.xWa, h.fineRestWave, h.hck)
-    
-    if abs(b-lPeak) > 0.01:
-        errorBool = 1
-        if verbose is True:
-            print('--> error, difference between input and output lPeaks is > 0.01' +
-                'microns')
-            print('diff:' + str(b-lPeak))
-    else:
-        errorBool = 0
-        if verbose is True:
-            print('--> passed LPeak-Temp conversion check')
-    
-    return errorBool
 
 
 def checkLIR(norm1, Tdust, alpha, beta, w0, z, inputLIR, verbose=True):
