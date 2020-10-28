@@ -64,7 +64,6 @@ def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     fixW0Value : Float or None
         The float or null value of w0 inputted into the pymc3 model.
 
-
     Returns
     -------
     norm1Array : ndarray
