@@ -118,23 +118,30 @@ def returnMedianParams(trace,fixAlphaValue,fixBetaValue,fixW0Value):
     
     Parameters:
     -----------
-    trace
-    fixAlphaValue
-    fixBetaValue
-    fixW0Value
+    trace : pymc3 trace
+        output of pymc3 sampling
+    fixAlphaValue : None or float
+        value alpha is fixed to or None if allowed to be sampled
+    fixBetaValue : None or float
+        value beta is fixed to or None if allowed to be sampled
+    fixW0Value : None or float
+        value w0 is fixed to or None if allowed to be sampled
     
     Returns:
     -----------
-    medianNorm1
-    medianTdust
-    medianAlpha
-    medianBeta
-    medianW0
+    medianNorm1 : float
+        median of norm1 samples or value param was fixed to
+    medianTdust : float
+        median of tdust samples or value param was fixed to
+    medianAlpha : float
+        median of alpha samples or value param was fixed to
+    medianBeta : float
+        median of beta samples or value param was fixed to
+    medianW0 : float
+        median of w0 samples or value param was fixed to
     """
     norm1Array = trace['norm1']
     TdustArray = trace['Tdust']
-    LIRArray = trace['LIR']
-    lPeakArray = trace['lPeak']
     if fixAlphaValue == None:
         alphaArray = trace['alpha']
     else: alphaArray = np.ones(len(norm1Array))*fixAlphaValue
