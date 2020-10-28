@@ -17,10 +17,13 @@ errFlux : array of floats or Quantities
 
 redshift : float  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;redshift of the galaxy.  
+
 fixAlpha : float or None  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float of value to fix Alpha to or None if you want alpha to vary.  
+
 fixBeta : float or None  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float of value to fix Beta to or None if you want beta to vary.  
+
 fixW0 : float, Quantity, or None  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float or quantity of value to fix the wavelength where the opacity is equal to 1 or None if you want w0 to vary. Assumed to be in microns if not an astropy unit quantity.  
 
