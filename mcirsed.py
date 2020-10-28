@@ -9,19 +9,18 @@ from astropy import units as u
 from matplotlib import pyplot as plt
 
 
-"""def BB(nbb, Tdust, beta, w0, restWave):
-    '''
-    Modified blackbody function
-    '''
-    return 10**nbb * (1.0-np.exp(-(w0/restWave)**beta)) * restWave**(-3.0) / (np.exp(ah.h.hck/restWave/Tdust)-1.0)
+"""
+Main functions for the Monte Carlo InfraRed Spectral Energy Distribution fitter (MCIRSED)
+published in Drew et al. 2021 in preparation.
 """
 
-def BB(nbb, Tdust, beta, w0, restWave):
-    '''
-    Modified blackbody function
 
+def BB(nbb, Tdust, beta, w0, restWave):
+    """Modified blackbody function
+
+    Math takes the form:
     10**nbb * (1.0-np.exp(-(w0/restWave)**beta)) * restWave**(-3.0) / (np.exp(ah.h.hck/restWave/Tdust)-1.0)
-    '''
+    """
     a = tt.pow(10, nbb)
     b = tt.sub(1.0, tt.exp(-tt.pow(tt.true_div(w0, restWave), beta)))
     c = tt.pow(restWave, -3.0)
@@ -29,24 +28,13 @@ def BB(nbb, Tdust, beta, w0, restWave):
     return tt.true_div(tt.mul(tt.mul(a, b), c), d)
 
 
-"""def powerLaw(npl, restWave, alpha):
-    '''
-    Equation of the power law
-    '''
-    return npl * restWave**alpha"""
-
-
 def powerLaw(npl, restWave, alpha):
-    '''
-    Equation of the power law
-    '''
+    """Equation of the power law portion of SED"""
     return tt.mul(npl, tt.pow(restWave, alpha))
 
 
 def derivativeLogBB(Tdust, beta, w0):
-    '''
-    Function to solve for the derivatives of the BB function.
-    '''
+    """Solves for the (approx) derivatives of the BB function."""
     extra_fine_rest_wave = np.logspace(np.log10(20), np.log10(200), 1000)
     log_bb = np.log10(BB(10.0, Tdust, beta, w0, extra_fine_rest_wave))
     delta_y = log_bb[1:] - log_bb[:-1]
@@ -54,27 +42,8 @@ def derivativeLogBB(Tdust, beta, w0):
     return delta_y / delta_x
 
 
-"""def derivativeLogBB(Tdust, beta, w0):
-    '''
-    Function to solve for the derivatives of the BB function.
-    '''
-    extra_fine_rest_wave = np.logspace(np.log10(20), np.log10(200), 1000)
-    x = tt.dvector('x')
-    y = np.log10(BB(10.0, Tdust, beta, w0, x))
-    gy = tt.grad(y, x)
-    f = T.function([x], gy)
-    
-    # log_bb = np.log10(BB(10.0, Tdust, beta, w0, extra_fine_rest_wave))
-    # delta_y = log_bb[1:] - log_bb[:-1]
-    # delta_x = np.log10(extra_fine_rest_wave[1:]) - np.log10(extra_fine_rest_wave[:-1])
-    # return delta_y / delta_x
-    return f(extra_fine_rest_wave)"""
-
-
 def eqWave(alpha, Tdust, beta, w0):
-    '''
-    Function to compute the wavelength where the derivative of the log BB function equals the slope of the power law
-    '''
+    """Compute the wavelength where the derivative of the log of BB equals the slope of the power law"""
     der_bb_reverse = derivativeLogBB(Tdust, beta, w0)[::-1]
     # only search 20um to 200um because the eqWave is definitely between there
     extra_fine_rest_wave = T.shared(np.logspace(np.log10(20), np.log10(200), 1000)[::-1])
@@ -82,15 +51,12 @@ def eqWave(alpha, Tdust, beta, w0):
 
 
 def SnuNoBump(norm1, Tdust, alpha, beta, w0, restWave):
-    '''
-    Functional form to fit with MCMC
-    '''
+    """Combined MBB and Power Law functional form to fit with MCMC"""
     eq_w = eqWave(alpha, Tdust, beta, w0)
     bb = BB(norm1, Tdust, beta, w0, restWave)
     n = BB(norm1, Tdust, beta, w0, eq_w) * eq_w**-alpha
     pl = powerLaw(n, restWave, alpha)
     sig = tt.nnet.sigmoid(200*(restWave-eq_w))
-
     return (1-sig) * pl + sig * bb
 
 
