@@ -102,7 +102,7 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
 
     Returns:
     --------
-    trace : pymc3 trace
+    trace : pymc3 trace object
         pymc3 trace with all of the samples
     """
     # do some unit handling
