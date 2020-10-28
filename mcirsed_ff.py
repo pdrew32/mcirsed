@@ -32,20 +32,13 @@ def powerLaw(npl, restWave, alpha):
     return npl * restWave**alpha
 
 
-def sigmoid(x, a, b):
-    """sigmoid function"""
-    y = 1 / (1 + np.exp(-b*(x-a)))
-    return y
-
-
 def SnuNoBump(norm1, Tdust, alpha, beta, w0, restWave):
     """Combined MBB and Power Law functional form to fit with MCMC"""
     eq_w = eqWave(alpha, Tdust, beta, w0)
     bb = BB(norm1, Tdust, beta, w0, restWave)
     n = BB(norm1, Tdust, beta, w0, eq_w) * eq_w**-alpha
     pl = powerLaw(n, restWave, alpha)
-    sig = sigmoid(restWave, eq_w, 200)
-    return (1-sig) * pl + sig * bb
+    return np.where(restWave < eq_w, pl, bb)
 
 
 def lambdaPeak(norm1, Tdust, alpha, beta, w0):
