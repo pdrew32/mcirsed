@@ -47,6 +47,11 @@ def lpeak_mmpz(LIR, lam, eta):
     return lam * (LIR/1e12)**eta
 
 
+def log_lirtd_corr(logLIR, eta=-0.068, lam0=100):
+    """same as lpeak_mmpz but with an offset """
+    return eta * (logLIR - 12.0) + lam0
+
+
 def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     """Return arrays filled with fixed and or fitted parameter values.
 
