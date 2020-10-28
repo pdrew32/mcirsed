@@ -51,7 +51,10 @@ def eqWave(alpha, Tdust, beta, w0):
 
 
 def SnuNoBump(norm1, Tdust, alpha, beta, w0, restWave):
-    """Combined MBB and Power Law functional form to fit with MCMC"""
+    """Combined MBB and Power Law functional form to fit with MCMC
+    For speed of computation, uses a sigmoid function with a sharp cutoff
+    times BB and 1-sigmoid times pl to achieve the piecewise function.
+    """
     eq_w = eqWave(alpha, Tdust, beta, w0)
     bb = BB(norm1, Tdust, beta, w0, restWave)
     n = BB(norm1, Tdust, beta, w0, eq_w) * eq_w**-alpha
@@ -61,28 +64,24 @@ def SnuNoBump(norm1, Tdust, alpha, beta, w0, restWave):
 
 
 def IRLum(norm1, Tdust, alpha, beta, w0, z, fourPiLumDistSquared):
-    '''
-    Calculate LIR
-    '''
+    """Calculate LIR"""
     return tt.log10(tt.sum(SnuNoBump(norm1, Tdust, alpha, beta, w0, ah.h.xWa)) * ah.h.deltaHz/(1+z) * fourPiLumDistSquared)
 
 
 def lambdaPeak(norm1, Tdust, alpha, beta, w0):
+    """Calculate Peak Wavelength"""
     x = tt.cast(ah.h.xWa,'float64')
     return x[tt.argmax(SnuNoBump(norm1, Tdust, alpha, beta, w0, x))]
 
 
 def Tredshift0(redshift, beta, Tdust):
-    ''' 
-    equation for calculating the dust temperature if the galaxy were at z=0
-    '''
+    """equation for calculating the dust temperature if the galaxy were at z=0"""
     power = 4+beta
     return (Tdust**power - cosmo.Tcmb0.value**power * ((1+redshift)**power - 1)) ** (1/power)
 
 
 def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, fixW0=None, CMBCorrection=False, MCSamples=5000, tune=2000, discardTunedSamples=True, loNorm1=1, upNorm1=5e10, upTdust=150.):
-    '''
-    Function to fit an infrared (8-1000um) spectral energy distribution to a galaxy's infrared data points
+    """Function to fit an infrared (8-1000um) spectral energy distribution to a galaxy's infrared data points
     
     Parameters:
     -----------
@@ -100,8 +99,12 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
         float of value to fix Beta to or None if you want beta to vary.
     fixW0 : float, Quantity, or None
         float or quantity of value to fix the wavelength where the opacity is equal to 1 or None if you want w0 to vary. Assumed to be in microns if not an astropy unit quantity.
-    '''
 
+    Returns:
+    --------
+    trace : pymc3 trace
+        pymc3 trace with all of the samples
+    """
     # do some unit handling
     if hasattr(dataWave,'unit'):
         dataWave = dataWave.to('micron').value
@@ -183,36 +186,3 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
     print(pm.summary(trace).round(2))
 
     return trace
-
-'''
-# for testing
-
-dWave = np.array([12.,  12.,  22.,  25.,  60., 100., 100., 160., 250., 350., 500.])
-dataFlux = np.array([ 0., 25.95, 37.91, 0., 689., 1158., 1496.7668284, 1362.79276124, 550.77, 242.66, 92.941])
-dataErr = np.array([ 24.45941245, 2.595, 3.791, 17.41576819, 40.52941176, 136.23529412, 43.6443, 45.3745, 7.20504858, 8.0970366, 8.35756958])
-z = 0.9303
-
-tr = mcirsed_speed(dWave, dataFlux, dataErr, z)
-
-
-# for testing
-from matplotlib import pyplot as plt
-import anahelper as ah
-import mccmcirsed_py3
-
-norm1 = 1e5
-Tdust = 50
-alpha = 2
-beta = 2
-w0 = 200
-eq_w = eqWave(alpha, Tdust, beta, w0).eval()
-pl = powerLaw(1e5, ah.h.xWa, alpha)
-
-plt.plot(ah.h.xWa, SnuNoBump(norm1, Tdust, alpha, beta, w0, ah.h.xWa).eval())
-plt.plot(ah.h.xWa, pl)
-plt.plot(ah.h.xWa, mccmcirsed_py3.SnuNoBump(norm1,Tdust,alpha,beta,w0,ah.h.xWa,ah.h.fineRestWave,ah.h.hck).eval())
-plt.axvline(eq_w)
-plt.xscale('log')
-plt.yscale('log')
-plt.show()
-'''
