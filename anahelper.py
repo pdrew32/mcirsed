@@ -48,8 +48,13 @@ def lpeak_mmpz(LIR, lam, eta):
 
 
 def log_lirtd_corr(logLIR, eta=-0.068, lam0=100):
-    """same as lpeak_mmpz but with an offset """
+    """same as lpeak_mmpz but with an offset"""
     return eta * (logLIR - 12.0) + lam0
+
+
+def log_lirtd_corr_ODR(beta, logLIR):
+    """same as log_lirtd_corr but organized for use with scipy odr"""
+    return beta[0] * (logLIR - 12.0) + beta[1]
 
 
 def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
