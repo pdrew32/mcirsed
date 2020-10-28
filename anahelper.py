@@ -48,8 +48,7 @@ def lpeak_mmpz(LIR, lam, eta):
 
 
 def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
-    """
-    Return arrays filled with fixed and or fitted parameter values.
+    """Return arrays filled with fixed and or fitted parameter values.
 
     Parameters
     ----------
@@ -91,7 +90,6 @@ def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
 
     lPeakArray : ndarray
         numpy array filled with LIR values for each successful chain.
-
     """
 
     norm1Array = trace['norm1']
@@ -116,8 +114,7 @@ def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
 
 
 def returnMedianParams(trace,fixAlphaValue,fixBetaValue,fixW0Value):
-    '''
-    Return median fit parameters
+    """Return median fit parameters
     
     Parameters:
     -----------
@@ -133,7 +130,7 @@ def returnMedianParams(trace,fixAlphaValue,fixBetaValue,fixW0Value):
     medianAlpha
     medianBeta
     medianW0
-    '''
+    """
     norm1Array = trace['norm1']
     TdustArray = trace['Tdust']
     LIRArray = trace['LIR']
@@ -152,9 +149,7 @@ def returnMedianParams(trace,fixAlphaValue,fixBetaValue,fixW0Value):
 
 
 def returnMedianParamsAndErrorsFromFitFrame(fitFrame):
-    '''
-    Adds best values and 1sigma errors to the fit dataframe.
-    '''
+    """Adds best values and 1sigma errors to the fit dataframe."""
 
     fitFrame['measuredLIR'] = fitFrame['trace_LIR'].map(medFunc)
     fitFrame['measuredLIRlosig'] = fitFrame['trace_LIR'].map(lowSigma)
@@ -185,6 +180,28 @@ def returnMedianParamsAndErrorsFromFitFrame(fitFrame):
     fitFrame['measuredNorm1hisig'] = fitFrame['trace_Norm1'].map(higSigma)
         
     return fitFrame
+
+
+def medFunc(x):
+    """return median. for vectorization of operations in pandas"""
+    return np.median(x)
+    
+
+def lowSigma(x):
+    """return 16th percentile for vectorization of operations in pandas"""
+    return np.median(x) - np.percentile(x, 16)
+
+
+def higSigma(x):
+    """return 84th percentile for vectorization of operations in pandas"""
+    return np.percentile(x, 84) - np.median(x)
+
+
+def fixedValueReturns1(x):
+    """return 1 for fixed fitting params for vectorization in pandas"""
+    n = np.empty_like(x)
+    nones = x == n
+    return nones
 
 
 def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
