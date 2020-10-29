@@ -26,7 +26,7 @@ fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
 refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
 
 whichind = 0 # 450
-endInd = 2505 # whichind + 1 # 
+endInd = 105 # whichind + 1 # 
 
 if freshRun is True:
     contin = input(
@@ -35,7 +35,7 @@ if freshRun is True:
         sys.exit('Stopping Code')
 
 ###############################################################################
-intList = refit_inds[whichind:] # dataF.index[whichind:endInd]
+intList = refit_inds[whichind:endInd] # dataF.index[whichind:endInd]
 ###############################################################################
 
 upTdust = 120
