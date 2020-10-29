@@ -332,7 +332,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
             plt.xscale('log')
             plt.show()
 
-    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * ah.h.conversionFactor / (1+z_list))
+    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * h.conversionFactor / (1+z_list))
     log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor)[1], 1))
     log4pidlsq = np.transpose(log4pidlsq)
     # adjust scaling factor to account for log4pidlsq
