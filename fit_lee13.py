@@ -25,7 +25,7 @@ dataF = pd.read_csv(read_file_data, index_col=0)
 fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
 refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
 
-whichind = 0 # 450
+whichind = 5 # 450
 endInd = 105 # whichind + 1 # 
 
 if freshRun is True:
