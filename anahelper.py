@@ -273,3 +273,100 @@ def create_tdust_lpeak_grid(beta, w0, path):
     t_l = pd.DataFrame(data=np.array([lpeaks, tdusts]).transpose(), columns=['lpeak', 'Tdust'])
     t_l.to_csv(path)
     return
+
+
+def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True):
+    """calculate the scaling factor to apply to arbitrary snu to get the correct final snu
+
+    Parameters:
+    -----------
+    wave : float
+        wavelength of selection
+    
+    fluxLimit : float
+        flux limit at wavelength of selection
+    
+    z_list : list or pandas column
+        list of real redshifts from sample
+
+    genF : dataFrame
+        frame of generated galaxies
+
+    fixAlphaValue : float
+        alpha to fix
+
+    fixBetaValue : float
+        beta to fix
+
+    fixW0Value : float
+        w0 to fix
+
+    plot_it : bool
+        should we plot 10 seds to check that the scaling is working appropriately?
+    
+    Returns:
+    --------
+    scalingFactor : ndarray
+        scaling factor that sets the appropriate flux limit
+    """
+
+    log_s_unscaled = np.zeros([len(z_list), len(genF.gen_loglpeak)])
+    arbitraryNorm1 = 6
+    for i in list(range(len(genF.gen_loglpeak))):
+        print(str(i) + '/' + str(len(genF.gen_loglpeak)))
+        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
+    # scaling factor is the difference between unscaled s60 and the flux limit
+    scalingFactor = np.log10(fluxLimit) - log_s_unscaled
+
+    if plot_it is True:
+        galnum = 2
+        gengalnum = list(range(10))
+        x = np.logspace(np.log10(8), np.log10(1000), 1000)
+        for i in gengalnum:
+            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x/(1 + z_list[galnum]))) + scalingFactor[galnum, gengalnum[i]]
+
+            plt.scatter(x, 10**y)
+            plt.yscale('log')
+            plt.axhline(fluxLimit, color='k')
+            plt.axvline(wave/(1 + z_list[galnum]), color='k')
+            plt.xscale('log')
+            plt.show()
+
+    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * ah.h.conversionFactor / (1+z_list))
+    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor)[1], 1))
+    log4pidlsq = np.transpose(log4pidlsq)
+    # adjust scaling factor to account for log4pidlsq
+    scalingFactor = scalingFactor + log4pidlsq
+    return scalingFactor
+
+
+def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
+    """calculate the fraction of galaxies in the given LIR bin that
+       would be detectable given the noise of the sample
+
+    wave : float
+        wavelength of selection
+    fitF : pandas DataFrame
+        dataframe of fits
+    genF : pandas DataFrame
+        dataframe of generated galaxies
+    scalingFactor : ndarray
+        scaling factor from scaling_factor
+    plot_it : bool
+        whether or not to show plots of the first 10 limits
+    """
+
+    j = 0
+    for i in list(fitF.index):
+        my_lir_bin_ind = genF.lir_bin_ind == fitF.loc[i, 'lir_bin_ind']
+        lim_lirs = genF.loc[my_lir_bin_ind, 'log_lir_limit_unscaled'] + scalingFactor[j, my_lir_bin_ind]
+        if len(lim_lirs) > 0:
+            fitF.loc[i, 'detec_frac_' + str(wave)] = sum(lim_lirs.values < np.log10(genF.loc[my_lir_bin_ind, 'gen_lir'].values))/len(lim_lirs)
+        if (j < 10) & (plot_it is True):
+            plt.scatter(lim_lirs.values, genF.loc[my_lir_bin_ind, 'gen_loglpeak'])
+        j += 1
+    if plot_it is True:
+        plt.scatter(np.log10(genF.gen_lir), genF.gen_loglpeak, zorder=-1, color='k')
+        plt.show()
+    
+    return fitF
