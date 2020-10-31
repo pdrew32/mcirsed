@@ -26,7 +26,7 @@ fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
 # refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
 refit_inds = list(dataF.index[(dataF.F100 == 0) | (dataF.F160 == 0)])
 
-whichind = 0 # 450
+whichind = 13 # 450
 endInd = whichind + 1 # 105 # 
 
 if freshRun is True:
@@ -43,6 +43,7 @@ upTdust = 150
 
 fixBetaValue = 2.0 # None # 
 fixAlphaValue = None # 2.0 # 
+flat_alpha_prior = False
 fixW0Value = 200
 tune = 3000
 MCSamples = 5000
@@ -106,7 +107,7 @@ for i in intList:
                                  CMBCorrection=CMBCorrection,
                                  MCSamples=MCSamples, tune=tune,
                                  upNorm1=upperLim, loNorm1=upperLim - 4,
-                                 upTdust=upTdust, flat_alpha_prior)
+                                 upTdust=upTdust, flat_alpha_prior=flat_alpha_prior)
 
     ###########################################################################
     # plot it
