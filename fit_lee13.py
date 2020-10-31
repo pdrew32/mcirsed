@@ -14,7 +14,7 @@ Script to fit Lee+13 galaxies
 
 freshRun = False
 runNum = 0
-plotOutput = True
+plotOutput = False
 inflateErrors = False
 
 write_file_sed_fit = 'lee13_fit.pkl'
@@ -27,7 +27,7 @@ fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
 refit_inds = list(dataF.index[(dataF.F100 == 0) | (dataF.F160 == 0)])
 
 whichind = 13 # 450
-endInd = whichind + 1 # 105 # 
+endInd = 30 # whichind + 1 # 105 # 
 
 if freshRun is True:
     contin = input(
