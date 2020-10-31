@@ -330,7 +330,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
             plt.xlabel('restframe wavelength (um)')
             plt.ylabel('S (mJy)')
             plt.axhline(fluxLimit, color='k')
-            plt.axvline(wave, color='k') # /(1 + z_list[galnum])
+            plt.axvline(wave/(1 + z_list[galnum]), color='k')
             plt.xscale('log')
             plt.show()
 
