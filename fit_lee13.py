@@ -106,7 +106,7 @@ for i in intList:
                                  CMBCorrection=CMBCorrection,
                                  MCSamples=MCSamples, tune=tune,
                                  upNorm1=upperLim, loNorm1=upperLim - 4,
-                                 upTdust=upTdust)
+                                 upTdust=upTdust, flat_alpha_prior)
 
     ###########################################################################
     # plot it
