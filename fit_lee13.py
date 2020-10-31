@@ -14,7 +14,7 @@ Script to fit Lee+13 galaxies
 
 freshRun = False
 runNum = 0
-plotOutput = False
+plotOutput = True
 inflateErrors = False
 
 write_file_sed_fit = 'lee13_fit.pkl'
@@ -23,10 +23,11 @@ read_file_data = '../data/lee13data.csv'
 dataF = pd.read_csv(read_file_data, index_col=0)
 
 fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
-refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
+# refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
+refit_inds = list(dataF.index[(dataF.F100 == 0) | (dataF.F160 == 0)])
 
-whichind = 5 # 450
-endInd = 105 # whichind + 1 # 
+whichind = 0 # 450
+endInd = whichind + 1 # 105 # 
 
 if freshRun is True:
     contin = input(
@@ -35,10 +36,10 @@ if freshRun is True:
         sys.exit('Stopping Code')
 
 ###############################################################################
-intList = refit_inds[whichind:endInd] # dataF.index[whichind:endInd]
+intList = refit_inds[whichind:endInd] # dataF.index[whichind:endInd] # 
 ###############################################################################
 
-upTdust = 120
+upTdust = 150
 
 fixBetaValue = 2.0 # None # 
 fixAlphaValue = None # 2.0 # 
@@ -69,9 +70,9 @@ for i in intList:
     dataErr = np.abs([dataF.loc[i].E24, dataF.loc[i].E70, dataF.loc[i].E100, dataF.loc[i].E160, dataF.loc[i].E250, dataF.loc[i].E350, dataF.loc[i].E500, dataF.loc[i].e850, dataF.loc[i].E11mm, dataF.loc[i].E12mm])
 
     # if 100 or 160 flux density is 0 fix alpha and beta
-    if np.any(dataFlux[np.where((dWave == 100.0) | (dWave == 160.0))] == 0):
+    '''if np.any(dataFlux[np.where((dWave == 100.0) | (dWave == 160.0))] == 0):
         fixAlphaValue = 2.0
-        fixBetaValue = 2.0
+        fixBetaValue = 2.0'''
 
     dataFlux = dataFlux[dataErr > 0]
     dWave = dWave[dataErr > 0]
