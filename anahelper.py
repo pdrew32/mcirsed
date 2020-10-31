@@ -323,12 +323,14 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
         gengalnum = list(range(10))
         x = np.logspace(np.log10(8), np.log10(1000), 1000)
         for i in gengalnum:
-            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x/(1 + z_list[galnum]))) + scalingFactor[galnum, gengalnum[i]]
+            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x)) + scalingFactor[galnum, gengalnum[i]] # /(1 + z_list[galnum])
 
-            plt.scatter(x, 10**y)
+            plt.scatter(x, 10**y) # /(1 + z_list[galnum])
             plt.yscale('log')
+            plt.xlabel('restframe wavelength (um)')
+            plt.ylabel('S (mJy)')
             plt.axhline(fluxLimit, color='k')
-            plt.axvline(wave/(1 + z_list[galnum]), color='k')
+            plt.axvline(wave, color='k') # /(1 + z_list[galnum])
             plt.xscale('log')
             plt.show()
 
