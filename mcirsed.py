@@ -80,7 +80,7 @@ def Tredshift0(redshift, beta, Tdust):
     return (Tdust**power - cosmo.Tcmb0.value**power * ((1+redshift)**power - 1)) ** (1/power)
 
 
-def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, fixW0=None, CMBCorrection=False, MCSamples=5000, tune=2000, discardTunedSamples=True, loNorm1=1, upNorm1=5e10, upTdust=150.):
+def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, fixW0=None, CMBCorrection=False, MCSamples=5000, tune=2000, discardTunedSamples=True, loNorm1=1, upNorm1=5e10, upTdust=150., flat_alpha_prior=True):
     """Function to fit an infrared (8-1000um) spectral energy distribution to a galaxy's infrared data points
     
     Parameters:
@@ -154,7 +154,10 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
         if fixBeta is None:
             fixBeta = pm.Bound(pm.Flat, lower=0.5, upper=5.0)('Beta') # emissivity of the greybody
         if fixAlpha is None:
-            fixAlpha  = pm.Bound(pm.Flat, lower=0.0, upper=6.)('alpha') # the slope of the powerlaw component
+            if flat_alpha_prior is True:
+                fixAlpha  = pm.Bound(pm.Flat, lower=0.0, upper=6.)('alpha') # the slope of the powerlaw component
+            if flat_alpha_prior is False:
+                fixAlpha = pm.Normal('alpha', mu=2.3, sigma=0.5)
         if fixW0 is None:
             fixW0 = pm.Bound(pm.Flat, lower=5., upper=2000.)('w0') # rest-wave bounds in microns
 
