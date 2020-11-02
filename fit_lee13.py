@@ -22,12 +22,8 @@ write_file_sed_fit = 'lee13_fit.pkl'
 read_file_data = '../data/lee13data.csv'
 dataF = pd.read_csv(read_file_data, index_col=0)
 
-fF = pd.read_pickle('../data/lee13_fit_best_fit_params_added.pkl')
-# refit_inds = list(fF.loc[fF.measuredTdust > 70].index)
-refit_inds = list(dataF.index[(dataF.F100 == 0) | (dataF.F160 == 0)])
-
-whichind = 13 # 450
-endInd = 30 # whichind + 1 # 105 # 
+whichind = 0 # 450
+endInd = whichind + 1 # 105 # 
 
 if freshRun is True:
     contin = input(
@@ -36,12 +32,12 @@ if freshRun is True:
         sys.exit('Stopping Code')
 
 ###############################################################################
-intList = refit_inds[whichind:endInd] # dataF.index[whichind:endInd] # 
+intList = dataF.index[whichind:endInd] # refit_inds[whichind:endInd] # 
 ###############################################################################
 
 upTdust = 150
 
-fixBetaValue = 2.0 # None # 
+fixBetaValue = None # 2.0 # 
 fixAlphaValue = None # 2.0 # 
 flat_alpha_prior = False
 fixW0Value = 200
