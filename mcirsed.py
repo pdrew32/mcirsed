@@ -80,7 +80,7 @@ def Tredshift0(redshift, beta, Tdust):
     return (Tdust**power - cosmo.Tcmb0.value**power * ((1+redshift)**power - 1)) ** (1/power)
 
 
-def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, fixW0=None, CMBCorrection=False, MCSamples=5000, tune=2000, discardTunedSamples=True, loNorm1=1, upNorm1=5e10, upTdust=150., flat_alpha_prior=True):
+def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, fixW0=None, CMBCorrection=False, MCSamples=5000, tune=2000, discardTunedSamples=True, loNorm1=1, upNorm1=5e10, upTdust=150., flat_alpha_prior=True, flat_beta_prior=True):
     """Function to fit an infrared (8-1000um) spectral energy distribution to a galaxy's infrared data points
     
     Parameters:
@@ -152,12 +152,15 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
         norm1 = pm.Bound(pm.Flat, lower=loNorm1, upper=upNorm1)('norm1') # normalization of SED
         Tdust = pm.Bound(pm.Flat, lower=cosmo.Tcmb(redshift).value, upper=upTdust)('Tdust') # dust temperature of the system representing the emission from the greybody bounded between the CMB temperature at the galaxy's redshift and 250 K.
         if fixBeta is None:
-            fixBeta = pm.Bound(pm.Flat, lower=0.5, upper=5.0)('Beta') # emissivity of the greybody
+            if flat_beta_prior is True:
+                fixBeta = pm.Bound(pm.Flat, lower=0.5, upper=5.0)('Beta') # emissivity of the greybody
+            if flat_beta_prior is False:
+                fixBeta = pm.Normal('alpha', mu=1.96, sigma=0.43) # median and std from iras sample
         if fixAlpha is None:
             if flat_alpha_prior is True:
                 fixAlpha  = pm.Bound(pm.Flat, lower=0.0, upper=6.)('alpha') # the slope of the powerlaw component
             if flat_alpha_prior is False:
-                fixAlpha = pm.Normal('alpha', mu=2.3, sigma=0.5)
+                fixAlpha = pm.Normal('alpha', mu=2.3, sigma=0.5) # median and std from iras sample
         if fixW0 is None:
             fixW0 = pm.Bound(pm.Flat, lower=5., upper=2000.)('w0') # rest-wave bounds in microns
 
