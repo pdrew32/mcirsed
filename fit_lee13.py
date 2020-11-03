@@ -14,7 +14,7 @@ Script to fit Lee+13 galaxies
 
 freshRun = False
 runNum = 0
-plotOutput = False
+plotOutput = True
 inflateErrors = False
 
 write_file_sed_fit = 'lee13_fit.pkl'
@@ -40,6 +40,7 @@ upTdust = 150
 fixBetaValue = None # 2.0 # 
 fixAlphaValue = None # 2.0 # 
 flat_alpha_prior = False
+flat_beta_prior = False
 fixW0Value = 200
 tune = 3000
 MCSamples = 5000
@@ -87,7 +88,7 @@ for i in intList:
 
     z = dataF.loc[i].z_use
 
-    # if 350 and 500 microns are low snr fix beta to 2
+    '''# if 350 and 500 microns are low snr fix beta to 2
     if fixBetaValue is None:
         if (dataFlux[dWave == 350.0]/dataErr[dWave == 350.0] < 5.0) & (dataFlux[dWave == 500.0]/dataErr[dWave == 500.0] < 5.0):
             fixBetaValue = 2.0
@@ -95,7 +96,7 @@ for i in intList:
             fixBetaValue = None
 
         if (dataFlux[dWave == 350] < dataFlux[dWave == 500]):
-            fixBetaValue = 2.0
+            fixBetaValue = 2.0'''
     
     tr = mcirsed.mcirsed(dWave, dataFlux, dataErr, z,
                                  fixAlpha=fixAlphaValue, fixBeta=fixBetaValue,
@@ -103,7 +104,8 @@ for i in intList:
                                  CMBCorrection=CMBCorrection,
                                  MCSamples=MCSamples, tune=tune,
                                  upNorm1=upperLim, loNorm1=upperLim - 4,
-                                 upTdust=upTdust, flat_alpha_prior=flat_alpha_prior)
+                                 upTdust=upTdust, flat_alpha_prior=flat_alpha_prior,
+                                 flat_beta_prior=flat_beta_prior)
 
     ###########################################################################
     # plot it
