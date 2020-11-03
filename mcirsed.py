@@ -155,7 +155,7 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
             if flat_beta_prior is True:
                 fixBeta = pm.Bound(pm.Flat, lower=0.5, upper=5.0)('Beta') # emissivity of the greybody
             if flat_beta_prior is False:
-                fixBeta = pm.Normal('alpha', mu=1.96, sigma=0.43) # median and std from iras sample
+                fixBeta = pm.Normal('Beta', mu=1.96, sigma=0.43) # median and std from iras sample
         if fixAlpha is None:
             if flat_alpha_prior is True:
                 fixAlpha  = pm.Bound(pm.Flat, lower=0.0, upper=6.)('alpha') # the slope of the powerlaw component
