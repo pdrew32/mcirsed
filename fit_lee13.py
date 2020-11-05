@@ -22,8 +22,8 @@ write_file_sed_fit = 'lee13_fit.pkl'
 read_file_data = '../data/lee13data.csv'
 dataF = pd.read_csv(read_file_data, index_col=0)
 
-whichind = 125 # 450
-endInd = 200 # whichind + 1 # 105 # 
+whichind = 323 # 450
+endInd = 1000 # whichind + 1 # 105 # 
 
 if freshRun is True:
     contin = input(
