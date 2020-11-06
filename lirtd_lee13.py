@@ -10,7 +10,7 @@ from matplotlib import ticker
 plot lee+13 galaxies on the lirtd correlation from the iras sample
 """
 
-write_file = False
+write_file = True
 write_file_plot = '../plots/raw_lirtd_lee13.pdf'
 
 # load fits
