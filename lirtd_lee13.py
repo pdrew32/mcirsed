@@ -11,11 +11,12 @@ plot lee+13 galaxies on the lirtd correlation from the iras sample
 """
 
 write_file = True
-write_file_plot = '../plots/raw_lirtd_lee13.pdf'
+write_file_plot = '../plots/sigma_clipped_lirtd_lee13.pdf' # '../plots/raw_lirtd_lee13.pdf'
 
 # load fits
-read_file_data = '../data/lee13_fit_best_fit_params_added.pkl'
+read_file_data = '../data/lee13_fit_detec_frac_added_sig_clip.pkl' # '../data/lee13_fit_best_fit_params_added.pkl'
 fitF = pd.read_pickle(read_file_data)
+fitF = fitF.loc[fitF.sigma_clipped == 0]
 
 # want to limit to only believable redshifts
 # fitF = fitF.loc[fitF.z < 2.0]
