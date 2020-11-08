@@ -358,11 +358,17 @@ def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
         whether or not to show plots of the first 10 limits
     """
 
+    # set ind j to 0. will plot from j=0 to 9 if plot_it is True
     j = 0
     for i in list(fitF.index):
+        # for every galaxy:
+        # 1) get lir bin the gal belongs to
         my_lir_bin_ind = genF.lir_bin_ind == fitF.loc[i, 'lir_bin_ind']
+        # 2) get lirs at detec limit, scaled to z of gal
         lim_lirs = genF.loc[my_lir_bin_ind, 'log_lir_limit_unscaled'] + scalingFactor[j, my_lir_bin_ind]
+        # 3) if there are galaxies in the LIR bin:
         if len(lim_lirs) > 0:
+            # detec frac is sum of limit lirs less than those in uniform irlf over # gals in limit lirs
             fitF.loc[i, 'detec_frac_' + str(wave)] = sum(lim_lirs.values < np.log10(genF.loc[my_lir_bin_ind, 'gen_lir'].values))/len(lim_lirs)
         if (j < 10) & (plot_it is True):
             plt.scatter(lim_lirs.values, genF.loc[my_lir_bin_ind, 'gen_loglpeak'])
