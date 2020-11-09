@@ -33,7 +33,7 @@ plt.yscale('log')
 plt.title('HATLAS DR1', fontsize=12)
 plt.gca().yaxis.set_major_formatter(ticker.ScalarFormatter())
 plt.gca().yaxis.set_minor_formatter(ticker.ScalarFormatter())
-scat = plt.scatter(10**fitF.measuredLIR, fitF.measuredLPeak, c=fitF.z, marker='.', alpha=0.7) # color='k', 
+scat = plt.scatter(10**fitF.loc[fitF.measuredLIR > 7, 'measuredLIR'], fitF.loc[fitF.measuredLIR > 7, 'measuredLPeak'], c=fitF.loc[fitF.measuredLIR > 7, 'z'], marker='.', alpha=0.7) # color='k', 
 cb = fig.colorbar(scat, ax=ax)
 cb.set_label('z')
 plt.fill_between(x, 10**(np.log10(dy) - dF.gauss_width.values), 10**(np.log10(dy) + dF.gauss_width.values), color=sns.color_palette('mako')[1], alpha=0.3, label=r'$\pm$1$\sigma$ IRAS')
