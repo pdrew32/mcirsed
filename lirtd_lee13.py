@@ -49,7 +49,7 @@ fitF['use_flag_sum'] = np.nansum([fitF.use_flag_100, fitF.use_flag_160, fitF.use
 cut_inds = (fitF.sum_above_5_sigma_xid_error < 2) & (fitF.use_flag_sum < 2)
 
 fig, ax = plt.subplots()
-plt.plot(x, dy, label='IRAS best fit')
+plt.plot(x, dy, label='best fit, all samples')
 plt.xscale('log')
 plt.yscale('log')
 plt.title('Lee+13 galaxies with z_COSMOS2020', fontsize=12)
