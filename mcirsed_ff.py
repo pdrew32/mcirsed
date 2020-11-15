@@ -23,7 +23,7 @@ def derivativeLogBB(Tdust, beta, w0):
 def eqWave(alpha, Tdust, beta, w0):
     """Compute the wavelength where the derivative of the log of BB equals the slope of the power law"""
     der_bb_reverse = derivativeLogBB(Tdust, beta, w0)[::-1]
-    fineRestWave_reverse = np.logspace(np.log10(20), np.log10(200), 1000)[::-1]
+    fineRestWave_reverse = np.logspace(np.log10(2), np.log10(200), 1000)[::-1]
     return fineRestWave_reverse[np.searchsorted(der_bb_reverse, alpha)]
 
 
