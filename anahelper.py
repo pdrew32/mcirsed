@@ -251,7 +251,7 @@ def cornerHelper(trace, fixAlphaValue, fixBetaValue, fixW0Value):
     return np.array(arrList).transpose(), labels
 
 
-def create_tdust_lpeak_grid(beta, w0, path):
+def create_tdust_lpeak_grid(tdusts, beta, w0, path):
     """save a conversion grid between dust temps and peak waves to csv at path
        to avoid having to calculate it every time we want to convert
     
@@ -267,7 +267,6 @@ def create_tdust_lpeak_grid(beta, w0, path):
     path : string
         where to save the csv output
     """
-    tdusts = np.logspace(np.log10(3), np.log10(300), 100000)
     lpeak = np.vectorize(mcirsed_ff.lambdaPeak)
     lpeaks = lpeak(2., tdusts, 2., beta, w0)
     t_l = pd.DataFrame(data=np.array([lpeaks, tdusts]).transpose(), columns=['lpeak', 'Tdust'])
@@ -378,3 +377,48 @@ def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
         plt.show()
     
     return fitF
+
+
+def generate_dlim_curve(selec_wave, fluxLimit, z_list, fixAlphaValue, fixBetaValue, fixW0Value):
+    """calculate the scaling factor to apply to arbitrary snu to get the correct final snu. Similar to scaling_factor() except will use a much wider range of tdusts for plotting purposes
+
+    Parameters:
+    -----------
+    selec_wave : float
+        wavelength of selection
+    
+    fluxLimit : float
+        flux limit at wavelength of selection
+    
+    z_list : list or pandas column
+        list of real redshifts from sample
+
+    fixAlphaValue : float
+        alpha to fix
+
+    fixBetaValue : float
+        beta to fix
+
+    fixW0Value : float
+        w0 to fix
+    
+    Returns:
+    --------
+    scalingFactor : ndarray
+        scaling factor that sets the appropriate flux limit
+    """
+    
+    log_s_unscaled = np.zeros([len(z_list), len(genF.gen_loglpeak)])
+    arbitraryNorm1 = 6
+    for i in list(range(len(loglpeak))):
+        print(str(i) + '/' + str(len(loglpeak)))
+        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
+    # scaling factor is the difference between unscaled s60 and the flux limit
+    scalingFactor = np.log10(fluxLimit) - log_s_unscaled
+
+    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * h.conversionFactor / (1+z_list))
+    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor)[1], 1))
+    log4pidlsq = np.transpose(log4pidlsq)
+    # adjust scaling factor to account for log4pidlsq
+    scalingFactor = scalingFactor + log4pidlsq
+    return scalingFactor
