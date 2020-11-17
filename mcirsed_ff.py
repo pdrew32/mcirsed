@@ -13,7 +13,7 @@ Fast versions of the functions in mccmcirsed (ones that don't use theano)
 
 def derivativeLogBB(Tdust, beta, w0):
     """Solve for the (approximate) derivatives of the BB function."""
-    extra_fine_rest_wave = np.logspace(np.log10(20), np.log10(200), 1000)
+    extra_fine_rest_wave = np.logspace(np.log10(2), np.log10(200), 1000)
     log_bb = np.log10(BB(10.0, Tdust, beta, w0, extra_fine_rest_wave))
     delta_y = log_bb[1:] - log_bb[:-1]
     delta_x = np.log10(extra_fine_rest_wave[1:]) - np.log10(extra_fine_rest_wave[:-1])
