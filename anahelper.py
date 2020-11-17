@@ -5,6 +5,7 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as c
 from astropy import units as u
 from matplotlib import pyplot as plt
+from scipy.stats import gaussian_kde
 
 
 '''
@@ -305,7 +306,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
     
     Returns:
     --------
-    scalingFactor : ndarray
+    scaled_norm1 : ndarray
         scaling factor that sets the appropriate flux limit
     """
 
@@ -314,17 +315,17 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
     for i in list(range(len(genF.gen_loglpeak))):
         print(str(i) + '/' + str(len(genF.gen_loglpeak)))
         log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
-    # scaling factor is the difference between unscaled s60 and the flux limit
-    scalingFactor = np.log10(fluxLimit) - log_s_unscaled
+    # scaling factor is the value to add to arbitraryNorm1 to achieve the proper scaling
+    scaled_norm1 = np.log10(fluxLimit) - log_s_unscaled
 
     if plot_it is True:
         galnum = 2
         gengalnum = list(range(10))
         x = np.logspace(np.log10(8), np.log10(1000), 1000)
         for i in gengalnum:
-            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x)) + scalingFactor[galnum, gengalnum[i]] # /(1 + z_list[galnum])
+            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1 + scaled_norm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x)) + scalingFactor[galnum, gengalnum[i]]
 
-            plt.scatter(x, 10**y) # /(1 + z_list[galnum])
+            plt.scatter(x, 10**y)
             plt.yscale('log')
             plt.xlabel('restframe wavelength (um)')
             plt.ylabel('S (mJy)')
@@ -333,12 +334,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
             plt.xscale('log')
             plt.show()
 
-    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * h.conversionFactor / (1+z_list))
-    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor)[1], 1))
-    log4pidlsq = np.transpose(log4pidlsq)
-    # adjust scaling factor to account for log4pidlsq
-    scalingFactor = scalingFactor + log4pidlsq
-    return scalingFactor
+    return scaled_norm1
 
 
 def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
@@ -379,7 +375,7 @@ def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
     return fitF
 
 
-def generate_dlim_curve(selec_wave, fluxLimit, z_list, fixAlphaValue, fixBetaValue, fixW0Value):
+def scaling_factor_dlim_curve(selec_wave, fluxLimit, z_list, td_lpF, fixAlphaValue, fixBetaValue, fixW0Value):
     """calculate the scaling factor to apply to arbitrary snu to get the correct final snu. Similar to scaling_factor() except will use a much wider range of tdusts for plotting purposes
 
     Parameters:
@@ -389,6 +385,9 @@ def generate_dlim_curve(selec_wave, fluxLimit, z_list, fixAlphaValue, fixBetaVal
     
     fluxLimit : float
         flux limit at wavelength of selection
+    
+    td_lpF : pandas dataframe
+        pandas dataframe containing lpeaks and corresponding tdusts to plot
     
     z_list : list or pandas column
         list of real redshifts from sample
@@ -404,21 +403,32 @@ def generate_dlim_curve(selec_wave, fluxLimit, z_list, fixAlphaValue, fixBetaVal
     
     Returns:
     --------
-    scalingFactor : ndarray
-        scaling factor that sets the appropriate flux limit
+    scalingFactor_lir : ndarray
+        scaling factors for lirs that set the appropriate flux limit
     """
     
-    log_s_unscaled = np.zeros([len(z_list), len(genF.gen_loglpeak)])
+    log_s_unscaled = np.zeros([len(z_list), len(td_lpF.lpeak)])
     arbitraryNorm1 = 6
-    for i in list(range(len(loglpeak))):
-        print(str(i) + '/' + str(len(loglpeak)))
-        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
+    for i in list(range(len(td_lpF.lpeak))):
+        print(str(i) + '/' + str(len(td_lpF.lpeak)))
+        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, td_lpF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, selec_wave/(1+z_list)))
     # scaling factor is the difference between unscaled s60 and the flux limit
-    scalingFactor = np.log10(fluxLimit) - log_s_unscaled
+    scalingFactor_snu = np.log10(fluxLimit) - log_s_unscaled
 
     log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * h.conversionFactor / (1+z_list))
-    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor)[1], 1))
+    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor_snu)[1], 1))
     log4pidlsq = np.transpose(log4pidlsq)
     # adjust scaling factor to account for log4pidlsq
-    scalingFactor = scalingFactor + log4pidlsq
-    return scalingFactor
+    scalingFactor_lir = scalingFactor_snu + log4pidlsq
+    return scalingFactor_lir
+
+
+def estimate_maxima(data):
+    """script to find max of kde of hist of errors"""
+    kde = gaussian_kde(data)
+    # samples = np.linspace(np.floor(min(data)), np.floor(max(data)) + 1, int(np.floor(max(data)) + 1 - np.floor(min(data))))
+    samples = np.linspace(np.floor(min(data)), np.floor(max(data)) + 1, 1000)
+    probs = kde.evaluate(samples)
+    maxima_index = probs.argmax()
+    maxima = samples[maxima_index]
+    return maxima
