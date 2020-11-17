@@ -23,6 +23,9 @@ class h:
     deltaHz = xHz[1]-xHz[0]
     conversionFactor = 2.4873056783618645e-11  # mJy Hz Mpc^2 to lsol
     arbitraryNorm1 = 6
+    fixAlphaValue = 2.0
+    fixBetaValue = 2.0
+    fixW0Value = 200.0
 
 
 def lpeak_mmpz(LIR, lam, eta):
@@ -276,7 +279,7 @@ def create_tdust_lpeak_grid(tdusts, beta, w0, path):
     return
 
 
-def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True, verbose=True):
+'''def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True, verbose=True):
     """calculate the scaling factor to apply to arbitrary snu to get the correct final snu
 
     Parameters:
@@ -336,7 +339,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
             plt.xscale('log')
             plt.show()
 
-    return scaled_norm1
+    return scaled_norm1'''
 
 
 def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
@@ -377,7 +380,7 @@ def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
     return fitF
 
 
-def scaling_factor_dlim_curve(selec_wave, fluxLimit, z_list, td_lpF, fixAlphaValue, fixBetaValue, fixW0Value):
+'''def scaling_factor_dlim_curve(selec_wave, fluxLimit, z_list, td_lpF, fixAlphaValue, fixBetaValue, fixW0Value):
     """calculate the scaling factor to apply to arbitrary snu to get the correct final snu. Similar to scaling_factor() except will use a much wider range of tdusts for plotting purposes
 
     Parameters:
@@ -422,7 +425,49 @@ def scaling_factor_dlim_curve(selec_wave, fluxLimit, z_list, td_lpF, fixAlphaVal
     log4pidlsq = np.transpose(log4pidlsq)
     # adjust scaling factor to account for log4pidlsq
     scalingFactor_lir = scalingFactor_snu + log4pidlsq
-    return scalingFactor_lir
+    return scalingFactor_lir'''
+
+
+def scaled_norm1(detec_wave, detec_lim, z_array, tdust_array, fixAlphaValue, fixBetaValue, fixW0Value, verbose=True):
+    """calculate values to add to norm1 that will scale SEDs to the provided detection limit
+
+    Parameters:
+    -----------
+    detec_wave : float
+        wavelength of selection
+    
+    detec_lim : float
+        flux limit at wavelength of selection
+    
+    z_array : list, array, or pandas column
+        list of real redshifts from sample
+    
+    tdust_array : list, array, or pandas column
+        array of temperatures corresponding to lpeaks to calculate limits at.
+
+    fixAlphaValue : float
+        alpha to fix
+
+    fixBetaValue : float
+        beta to fix
+
+    fixW0Value : float
+        w0 to fix
+    
+    Returns:
+    --------
+    scaled_norm1 : ndarray
+        value to add to norm1 to scale SEDs to the provided detection limit
+    """
+
+    log_s_unscaled = np.zeros([len(z_array), len(tdust_array)])
+    for i in list(range(len(tdust_array))):
+        if verbose is True:
+            print(str(i) + '/' + str(len(tdust_array)))
+        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(h.arbitraryNorm1, tdust_array[i], fixAlphaValue, fixBetaValue, fixW0Value, detec_wave/(1+z_array)))
+    # scaling factor is the difference between unscaled s60 and the flux limit
+    scaled_norm1 = np.log10(detec_lim) - log_s_unscaled
+    return scaled_norm1
 
 
 def estimate_maxima(data):
