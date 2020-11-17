@@ -22,6 +22,7 @@ class h:
     xWa = (c.c/xHz/u.Hz).decompose().to(u.um)[::-1].value
     deltaHz = xHz[1]-xHz[0]
     conversionFactor = 2.4873056783618645e-11  # mJy Hz Mpc^2 to lsol
+    arbitraryNorm1 = 6
 
 
 def lpeak_mmpz(LIR, lam, eta):
@@ -275,7 +276,7 @@ def create_tdust_lpeak_grid(tdusts, beta, w0, path):
     return
 
 
-def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True):
+def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True, verbose=True):
     """calculate the scaling factor to apply to arbitrary snu to get the correct final snu
 
     Parameters:
