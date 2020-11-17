@@ -313,7 +313,8 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
     log_s_unscaled = np.zeros([len(z_list), len(genF.gen_loglpeak)])
     arbitraryNorm1 = 6
     for i in list(range(len(genF.gen_loglpeak))):
-        print(str(i) + '/' + str(len(genF.gen_loglpeak)))
+        if verbose is True:
+            print(str(i) + '/' + str(len(genF.gen_loglpeak)))
         log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
     # scaling factor is the value to add to arbitraryNorm1 to achieve the proper scaling
     scaled_norm1 = np.log10(fluxLimit) - log_s_unscaled
@@ -323,7 +324,7 @@ def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, f
         gengalnum = list(range(10))
         x = np.logspace(np.log10(8), np.log10(1000), 1000)
         for i in gengalnum:
-            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1 + scaled_norm1, genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x)) + scalingFactor[galnum, gengalnum[i]]
+            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1 + scaled_norm1[galnum, gengalnum[i]], genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x))
 
             plt.scatter(x, 10**y)
             plt.yscale('log')
