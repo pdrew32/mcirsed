@@ -13,7 +13,7 @@ Fast versions of the functions in mccmcirsed (ones that don't use theano)
 
 def derivativeLogBB(Tdust, beta, w0):
     """Solve for the (approximate) derivatives of the BB function."""
-    extra_fine_rest_wave = np.logspace(np.log10(2), np.log10(200), 1000)
+    extra_fine_rest_wave = np.logspace(np.log10(2), np.log10(300), 3000)
     log_bb = np.log10(BB(10.0, Tdust, beta, w0, extra_fine_rest_wave))
     delta_y = log_bb[1:] - log_bb[:-1]
     delta_x = np.log10(extra_fine_rest_wave[1:]) - np.log10(extra_fine_rest_wave[:-1])
@@ -23,7 +23,7 @@ def derivativeLogBB(Tdust, beta, w0):
 def eqWave(alpha, Tdust, beta, w0):
     """Compute the wavelength where the derivative of the log of BB equals the slope of the power law"""
     der_bb_reverse = derivativeLogBB(Tdust, beta, w0)[::-1]
-    fineRestWave_reverse = np.logspace(np.log10(2), np.log10(200), 1000)[::-1]
+    fineRestWave_reverse = np.logspace(np.log10(2), np.log10(300), 3000)[::-1]
     return fineRestWave_reverse[np.searchsorted(der_bb_reverse, alpha)]
 
 
@@ -49,6 +49,20 @@ def lambdaPeak(norm1, Tdust, alpha, beta, w0):
 def IRLum(norm1, Tdust, alpha, beta, w0, z, fourPiLumDistSquared):
     """Calculate LIR"""
     return np.sum(SnuNoBump(norm1, Tdust, alpha, beta, w0, ah.h.xWa)) * ah.h.deltaHz/(1+z) * fourPiLumDistSquared
+
+
+def IRLum_sum(norm1, Tdust, alpha, beta, w0):
+    """split lir calculation into the sum portion and the redshifting portion.
+    For improved vectorization of the functions. This is the sum portion.
+    """
+    return np.sum(SnuNoBump(norm1, Tdust, alpha, beta, w0, ah.h.xWa))
+
+
+def IRLum_z_portion(IRLum_sum_portion, z, fourPiLumDistSquared):
+    """split lir calculation into the sum portion and the redshifting portion.
+    For improved vectorization of the functions. This is the z portion.
+    """
+    return IRLum_sum_portion * ah.h.deltaHz/(1+z) * fourPiLumDistSquared
 
 
 def BB(nbb, Tdust, beta, w0, restWave):
