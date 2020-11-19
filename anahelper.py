@@ -479,3 +479,16 @@ def estimate_maxima(data):
     maxima_index = probs.argmax()
     maxima = samples[maxima_index]
     return maxima
+
+
+def IRLF(L):
+    """IRLF from Casey+18a
+    """
+    irlf_arr = np.zeros_like(L)
+    l_not = 1.3e11
+    phi_star = 3.2e-4
+    alpha_lf = -0.6
+    beta_lf = -3.0
+    irlf_arr[L <= l_not] = phi_star * (L[L <= l_not]/l_not) ** alpha_lf
+    irlf_arr[L > l_not] = phi_star * (L[L > l_not]/l_not) ** beta_lf
+    return irlf_arr
