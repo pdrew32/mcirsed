@@ -7,6 +7,7 @@ import theano.tensor as tt
 from astropy.cosmology import Planck15 as cosmo
 from astropy import units as u
 from matplotlib import pyplot as plt
+import mcirsed_ff
 
 
 """
@@ -144,7 +145,7 @@ def mcirsed(dataWave, dataFlux, errFlux, redshift, fixAlpha=None, fixBeta=None, 
     
     # a few definitions:
     restWave = dataWave / (1+redshift)
-    fourPiLumDistSquared = (4 * np.pi * cosmo.luminosity_distance(redshift)**2.).value * ah.h.conversionFactor
+    fourPiLumDistSquared = mcirsed_ff.fourPiLumDistSquared(redshift)
     
     mod = pm.Model()
     with mod:
