@@ -22,7 +22,7 @@ write_file_sed_fit = 'lee13_fit.pkl'
 read_file_data = '../data/lee13data.csv'
 dataF = pd.read_csv(read_file_data, index_col=0)
 
-whichind = 1971 # 450
+whichind = 2505 # 450
 endInd = 2506 # whichind + 1 # 105 # 
 
 if freshRun is True:
@@ -111,8 +111,7 @@ for i in intList:
     # plot it
 
     if plotOutput is True:
-        inp = ah.returnMedianParams(tr, fixAlphaValue,
-                                                fixBetaValue, fixW0Value)
+        inp = ah.returnMedianParams(tr, fixAlphaValue, fixBetaValue, fixW0Value)
         best = mcirsed_ff.SnuNoBump(inp[0], inp[1], inp[2], inp[3], inp[4], ah.h.xWa)
 
         for j in list(range(100)):
