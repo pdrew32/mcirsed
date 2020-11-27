@@ -279,69 +279,6 @@ def create_tdust_lpeak_grid(tdusts, beta, w0, path):
     return
 
 
-'''def scaling_factor(wave, fluxLimit, z_list, genF, fixAlphaValue, fixBetaValue, fixW0Value, plot_it=True, verbose=True):
-    """calculate the scaling factor to apply to arbitrary snu to get the correct final snu
-
-    Parameters:
-    -----------
-    wave : float
-        wavelength of selection
-    
-    fluxLimit : float
-        flux limit at wavelength of selection
-    
-    z_list : list or pandas column
-        list of real redshifts from sample
-
-    genF : dataFrame
-        frame of generated galaxies
-
-    fixAlphaValue : float
-        alpha to fix
-
-    fixBetaValue : float
-        beta to fix
-
-    fixW0Value : float
-        w0 to fix
-
-    plot_it : bool
-        should we plot 10 seds to check that the scaling is working appropriately?
-    
-    Returns:
-    --------
-    scaled_norm1 : ndarray
-        scaling factor that sets the appropriate flux limit
-    """
-
-    log_s_unscaled = np.zeros([len(z_list), len(genF.gen_loglpeak)])
-    arbitraryNorm1 = 6
-    for i in list(range(len(genF.gen_loglpeak))):
-        if verbose is True:
-            print(str(i) + '/' + str(len(genF.gen_loglpeak)))
-        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, genF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, wave/(1+z_list)))
-    # scaling factor is the value to add to arbitraryNorm1 to achieve the proper scaling
-    scaled_norm1 = np.log10(fluxLimit) - log_s_unscaled
-
-    if plot_it is True:
-        galnum = 2
-        gengalnum = list(range(10))
-        x = np.logspace(np.log10(8), np.log10(1000), 1000)
-        for i in gengalnum:
-            y = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1 + scaled_norm1[galnum, gengalnum[i]], genF.loc[gengalnum[i], 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, x))
-
-            plt.scatter(x, 10**y)
-            plt.yscale('log')
-            plt.xlabel('restframe wavelength (um)')
-            plt.ylabel('S (mJy)')
-            plt.axhline(fluxLimit, color='k')
-            plt.axvline(wave/(1 + z_list[galnum]), color='k')
-            plt.xscale('log')
-            plt.show()
-
-    return scaled_norm1'''
-
-
 def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
     """calculate the fraction of galaxies in the given LIR bin that
        would be detectable given the noise of the sample
@@ -378,54 +315,6 @@ def detec_frac(wave, fitF, genF, scalingFactor, plot_it=True):
         plt.show()
     
     return fitF
-
-
-'''def scaling_factor_dlim_curve(selec_wave, fluxLimit, z_list, td_lpF, fixAlphaValue, fixBetaValue, fixW0Value):
-    """calculate the scaling factor to apply to arbitrary snu to get the correct final snu. Similar to scaling_factor() except will use a much wider range of tdusts for plotting purposes
-
-    Parameters:
-    -----------
-    selec_wave : float
-        wavelength of selection
-    
-    fluxLimit : float
-        flux limit at wavelength of selection
-    
-    td_lpF : pandas dataframe
-        pandas dataframe containing lpeaks and corresponding tdusts to plot
-    
-    z_list : list or pandas column
-        list of real redshifts from sample
-
-    fixAlphaValue : float
-        alpha to fix
-
-    fixBetaValue : float
-        beta to fix
-
-    fixW0Value : float
-        w0 to fix
-    
-    Returns:
-    --------
-    scalingFactor_lir : ndarray
-        scaling factors for lirs that set the appropriate flux limit
-    """
-    
-    log_s_unscaled = np.zeros([len(z_list), len(td_lpF.lpeak)])
-    arbitraryNorm1 = 6
-    for i in list(range(len(td_lpF.lpeak))):
-        print(str(i) + '/' + str(len(td_lpF.lpeak)))
-        log_s_unscaled[:, i] = np.log10(mcirsed_ff.SnuNoBump(arbitraryNorm1, td_lpF.loc[i, 'Tdust'], fixAlphaValue, fixBetaValue, fixW0Value, selec_wave/(1+z_list)))
-    # scaling factor is the difference between unscaled s60 and the flux limit
-    scalingFactor_snu = np.log10(fluxLimit) - log_s_unscaled
-
-    log4pidlsq = np.log10((4*np.pi*cosmo.luminosity_distance(z_list)**2.).value * h.conversionFactor / (1+z_list))
-    log4pidlsq = np.tile(log4pidlsq, (np.shape(scalingFactor_snu)[1], 1))
-    log4pidlsq = np.transpose(log4pidlsq)
-    # adjust scaling factor to account for log4pidlsq
-    scalingFactor_lir = scalingFactor_snu + log4pidlsq
-    return scalingFactor_lir'''
 
 
 def scaled_norm1(detec_wave, detec_lim, z_array, tdust_array, fixAlphaValue, fixBetaValue, fixW0Value, verbose=True):
@@ -481,14 +370,62 @@ def estimate_maxima(data):
     return maxima
 
 
-def IRLF(L):
+def IRLF(L, z=0.0):
     """IRLF from Casey+18a
+
+    Parameters:
+    -----------
+    L : ndarray
+        luminosities to calculate number counts for
+    
+    z : float
+        redshift to calculate the irlf at. defaults to 0.
+    
+    Returns:
+    --------
+    irlf_arr : ndarray
+        number per Mpc^3 per dex
     """
     irlf_arr = np.zeros_like(L)
-    l_not = 1.3e11
-    phi_star = 3.2e-4
+    lstar = 10**log_lstar(z)
+    phi_star = 10**log_phi_star(z)
     alpha_lf = -0.6
     beta_lf = -3.0
-    irlf_arr[L <= l_not] = phi_star * (L[L <= l_not]/l_not) ** alpha_lf
-    irlf_arr[L > l_not] = phi_star * (L[L > l_not]/l_not) ** beta_lf
+    irlf_arr[L < lstar] = phi_star * (L[L < lstar]/lstar) ** alpha_lf
+    irlf_arr[L >= lstar] = phi_star * (L[L >= lstar]/lstar) ** beta_lf
     return irlf_arr
+
+
+def log_lstar(z, gamma_1=2.8, gamma_2=1.0, z_turn=1.95, z_w=2.0, l_not = 1.3e11):
+    """equation 8 from Casey+18a describing the z evolution of lstar
+
+    For z_turn, taking the average of the two models, A and B. 1.95 is average of 2.1 and 1.8
+    """
+    x = np.log10(1+z)
+    x_t = np.log10(1 + z_turn)
+    x_w = z_w/(np.log(10) * (1+z_turn))
+
+    a = (gamma_2 - gamma_1)/2.0 * x_w/np.pi
+    b = np.log(np.cosh((x - x_t) * np.pi/x_w))
+    c = np.log(np.cosh(-x_t * np.pi/x_w))
+    d = (gamma_2 + gamma_1)/2 * x
+    e = np.log10(l_not)
+
+    return a * (b - c) + d + e
+
+def log_phi_star(z, phi_1=0.0, phi_2=-4.2, z_turn=1.95, z_w=2.0, phi_0=3.2e-4):
+    """equation 9 from Casey+18a describing the z evolution of phi_star
+    
+    For phi_2, taking the average of the two models, A and B. -4.2 is average of -5.9 and -2.5
+    """
+    x = np.log10(1+z)
+    x_t = np.log10(1 + z_turn)
+    x_w = z_w/(np.log(10) * (1+z_turn))
+
+    a = (phi_2 - phi_1)/2.0 * x_w/np.pi
+    b = np.log(np.cosh((x - x_t) * np.pi/x_w))
+    c = np.log(np.cosh(-x_t * np.pi/x_w))
+    d = (phi_2 + phi_1)/2.0 * x
+    e = np.log10(phi_0)
+
+    return a * (b - c) + d + e
