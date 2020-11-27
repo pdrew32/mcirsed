@@ -65,6 +65,13 @@ def IRLum_z_portion(IRLum_sum_portion, z, fourPiLumDistSquared):
     return IRLum_sum_portion * ah.h.deltaHz/(1+z) * fourPiLumDistSquared
 
 
+def fourPiLumDistSquared(z):
+    """4 pi luminosity distance squared
+    units of conversionFactor: mJy Hz Mpc^2 to lsol
+    """
+    return (4*np.pi*cosmo.luminosity_distance(z)**2.).value * ah.h.conversionFactor
+
+
 def BB(nbb, Tdust, beta, w0, restWave):
     '''
     Modified blackbody function
