@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import Generator, SFC64
 import pandas as pd
 import mcirsed_ff
 from astropy.cosmology import Planck15 as cosmo
@@ -6,6 +7,7 @@ from astropy import constants as c
 from astropy import units as u
 from matplotlib import pyplot as plt
 from scipy.stats import gaussian_kde
+from scipy import interpolate
 
 
 '''
@@ -58,7 +60,9 @@ def log_lirtd_corr(logLIR, eta=-0.068, lam0=100):
 
 
 def log_lirtd_corr_ODR(beta, logLIR):
-    """same as log_lirtd_corr but organized for use with scipy odr"""
+    """same as log_lirtd_corr but organized for use with scipy odr
+    NOTE: beta[0] = eta, beta[1] = log(lam_t)
+    """
     return beta[0] * (logLIR - 12.0) + beta[1]
 
 
@@ -173,8 +177,8 @@ def returnMedianParamsAndErrorsFromFitFrame(fitFrame):
     """Adds best values and 1sigma errors to the fit dataframe."""
 
     fitFrame['measuredLIR'] = fitFrame['trace_LIR'].map(medFunc)
-    fitFrame['measuredLIRlosig'] = fitFrame['trace_LIR'].map(lowSigma)
-    fitFrame['measuredLIRhisig'] = fitFrame['trace_LIR'].map(higSigma)
+    fitFrame['measuredLIRlosig'] = fitFrame['trace_LIR'].map(lowSigmaLIR)
+    fitFrame['measuredLIRhisig'] = fitFrame['trace_LIR'].map(higSigmaLIR)
 
     fitFrame['measuredLPeak'] = fitFrame['trace_lPeak'].map(medFunc)
     fitFrame['measuredLPeaklosig'] = fitFrame['trace_lPeak'].map(lowSigma)
@@ -216,6 +220,22 @@ def lowSigma(x):
 def higSigma(x):
     """return 84th percentile for vectorization of operations in pandas"""
     return np.percentile(x, 84) - np.median(x)
+
+
+def lowSigmaLIR(x):
+    """return 16th percentile for vectorization of operations in pandas"""
+    a = 10**x
+    b = 0.434 * ((np.percentile(a, 50) - np.percentile(a, 16))/np.median(a))
+    return b
+    # return np.median(a) - np.log10(np.percentile(a, 16))
+
+
+def higSigmaLIR(x):
+    """return 84th percentile for vectorization of operations in pandas"""
+    a = 10**x
+    b = 0.434 * ((np.percentile(a, 84) - np.percentile(a, 50))/np.median(a))
+    return b
+    # return np.log10(np.percentile(10**x, 84)) - np.median(x)
 
 
 def fixedValueReturns1(x):
@@ -429,3 +449,89 @@ def log_phi_star(z, phi_1=0.0, phi_2=-4.2, z_turn=1.95, z_w=2.0, phi_0=3.2e-4):
     e = np.log10(phi_0)
 
     return a * (b - c) + d + e
+
+
+def generate_galaxies_from_irlf(z_min, z_max, survey_area, lirs):
+    """returns log_irlf from casey+18 in z bin over survey area at provided lirs. also randomly chooses numbers of galaxies in each lir bin based on the probability of observing them
+    
+    Parameters:
+    -----------
+    z_min : float
+        minimum redshift to create z array from
+    z_max : float
+        maximum redshift to create z array from
+    survey_area : float
+        survey area in deg^2
+    lirs : array
+        array of lirs to calculate over. units of solar luminosities, not log10(lsol). Use np.logspace so they are evenly spaced in log10
+
+    Returns:
+    --------
+    log_sky_phiarr : numpy array
+        the expected number of galaxies between z_min and z_max across the survey area for the given lirs. fractions allowed.
+    ngals_per_lir : numpy array
+        the rounded of galaxies between z_min and z_max across the survey area for the given lirs. integers only.
+    """
+    # use a high quality RNG
+    rg = Generator(SFC64())
+
+    # calculate volume of cosmos field over the desired redshifts
+    # units of Mpc^3
+    vol_z_upper = cosmo.comoving_volume(z_max).value * survey_area
+    vol_z_lower = cosmo.comoving_volume(z_min).value * survey_area
+
+    # ir luminosity function from casey+18a
+    phiarr = IRLF(lirs, z=np.mean([z_max, z_min]))
+
+    # get delta log lir
+    delta_log_LIR = np.log10(lirs[1]) - np.log10(lirs[0])
+
+    # convert irlf to units on the sky: sources/deg^2 in given zbin and lbin
+    log_sky_phiarr = np.log10(phiarr) + np.log10(vol_z_upper - vol_z_lower) + np.log10(delta_log_LIR)
+    ngals_per_lir = 10**log_sky_phiarr
+
+    # need to work with ngals_per_lir as probabilities
+    # round to get floor version
+    ngals_per_lir_floor = np.floor(ngals_per_lir)
+    # subtract to find remainder
+    ngals_per_lir_remainder = np.abs(ngals_per_lir - ngals_per_lir_floor)
+
+    # generate a random uniform number. if lower than the remainder of ngals, round up, otherwise round down
+    rand = rg.uniform(0, 1, len(ngals_per_lir_remainder))
+    ngals_per_lir = np.where(ngals_per_lir_remainder > rand, np.ceil(ngals_per_lir), np.floor(ngals_per_lir))
+
+    return log_sky_phiarr, ngals_per_lir
+
+
+def simulate_galaxies(lirs, ngals_per_lir, dF):
+    """returns lir and lpeak of simulated galaxies
+    
+    Parameters:
+    -----------
+    lirs : numpy array or list
+        lirs to populate the galaxies over
+    ngals_per_lir : numpy array or list
+        the number of galaxies in the given lir bin
+
+    Returns:
+    --------
+    simlir : numpy array
+        the log lirs of simulated galaxies
+    simlpeak : numpy array
+        the log lpeaks of simulated galaxies
+    """
+    rg = Generator(SFC64()) # use a high-quality rng
+
+    # interpolate over the lir-lpeak correlation from the provided lirs and lir-lpeak correlation fit params
+    lirtd_interp = interpolate.interp1d(np.log10(lirs), np.log10(lpeak_mmpz(lirs, dF.lam0.values[0], dF.eta.values[0])))
+
+    simlir = []
+    simlpeak = []
+    # for every lir bin, for the number of galaxies in that lir bin randomly draw from the measured distribution of galaxies around the lir-lpeak correlation provided in dF
+    for i in list(range(len(lirs))):
+        for j in list(range(int(ngals_per_lir[i]))):
+            simlpeak.append(rg.normal(lirtd_interp(np.log10(lirs[i])), dF.gauss_width)[0])
+            simlir.append(np.log10(lirs[i]))
+    simlir = np.array(simlir)
+    simlpeak = np.array(simlpeak)
+    return simlir, simlpeak
