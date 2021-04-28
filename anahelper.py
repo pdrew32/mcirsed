@@ -30,7 +30,7 @@ class h:
     fixW0Value = 200.0
 
 
-def lpeak_mmpz(LIR, lam, eta):
+def lpeak_mmpz(LIR, lam, eta, L_t=12):
     """mmpz function to return peak wavelength given lir, eta, lam.
     See Casey2020 for more detail (2020ApJ...900...68C)
 
@@ -51,19 +51,19 @@ def lpeak_mmpz(LIR, lam, eta):
         the peak wavelength of the SED along the lir-lpeak
         correlation at the given LIR, lam, and eta
     """
-    return lam * (LIR/1e12)**eta
+    return lam * (LIR/10**L_t)**eta
 
 
-def log_lirtd_corr(logLIR, eta=-0.068, lam0=100):
+def log_lirtd_corr(logLIR, eta=-0.068, lam0=100, L_t=12.0):
     """same as lpeak_mmpz but with an offset"""
-    return eta * (logLIR - 12.0) + lam0
+    return eta * (logLIR - L_t) + lam0
 
 
-def log_lirtd_corr_ODR(beta, logLIR):
+def log_lirtd_corr_ODR(beta, logLIR, L_t=12.0):
     """same as log_lirtd_corr but organized for use with scipy odr
     NOTE: beta[0] = eta, beta[1] = log(lam_t)
     """
-    return beta[0] * (logLIR - 12.0) + beta[1]
+    return beta[0] * (logLIR - L_t) + beta[1]
 
 
 def returnFitParamArrays(trace, fixAlphaValue, fixBetaValue, fixW0Value):
@@ -523,14 +523,14 @@ def simulate_galaxies(lirs, ngals_per_lir, dF):
     rg = Generator(SFC64()) # use a high-quality rng
 
     # interpolate over the lir-lpeak correlation from the provided lirs and lir-lpeak correlation fit params
-    lirtd_interp = interpolate.interp1d(np.log10(lirs), np.log10(lpeak_mmpz(lirs, dF.lam0.values[0], dF.eta.values[0])))
+    lirtd_interp = interpolate.interp1d(np.log10(lirs), np.log10(lpeak_mmpz(lirs, dF.lam_t.values[0], dF.eta.values[0])))
 
     simlir = []
     simlpeak = []
     # for every lir bin, for the number of galaxies in that lir bin randomly draw from the measured distribution of galaxies around the lir-lpeak correlation provided in dF
     for i in list(range(len(lirs))):
         for j in list(range(int(ngals_per_lir[i]))):
-            simlpeak.append(rg.normal(lirtd_interp(np.log10(lirs[i])), dF.gauss_width)[0])
+            simlpeak.append(rg.normal(lirtd_interp(np.log10(lirs[i])), dF.width)[0])
             simlir.append(np.log10(lirs[i]))
     simlir = np.array(simlir)
     simlpeak = np.array(simlpeak)
