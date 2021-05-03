@@ -1,4 +1,4 @@
-# Install Tutorial
+# Installation
 
 For the best results it is recommended that you run the MCIRSED package in a new conda environment unless you want to tinker with your Python package versions. Below are the steps I followed to run MCIRSED on a fresh conda environment in May 2021.
 
@@ -11,5 +11,6 @@ Note: newer stable builds may work in the future but as of the time of writing t
 5) Install pymc3 version 3.8: ```conda install -c conda-forge pymc3=3.8```\
 Newer versions may be compatible in the future but for now this is the latest stable version with the anaconda stable build.
 6) If using Windows, install g++ compiler using: ```conda install m2w64-toolchain``` 
-7) Downgrade arviz to version 0.11.1: ```conda install arviz=0.11.1```
-8) Install corner.py for corner plots: ```pip install corner```
+7) Install libpython: ```conda install libpython```
+8) Downgrade arviz to version 0.11.1: ```conda install arviz=0.11.1```
+9) Install corner.py for corner plots: ```pip install corner```
