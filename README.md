@@ -4,14 +4,9 @@ A Python tool for fitting the 8--1000 micron dust emission of galaxies published
 
 ## Required Packages:
 
-As of the time of writing, the main Python package we use for MCMC fitting, pymc3, will not work with Python 3.8 without some tinkering. We recommend you create a new conda environment with the following packages installed:
-- Python 3.7
-- The stable Anaconda build from November 2020 https://docs.anaconda.com/anaconda/reference/release-notes/#anaconda-2020-11-nov-19-2020. Note, later builds may work but have not been tested.
-- pymc3
+As of the time of writing, the main Python package we use for MCMC fitting, pymc3, will not work with Python 3.8 without an annoying hack. We recommend you create a new conda environment with Python 3.7, following the instructions [here](https://github.com/pdrew32/mcirsed/edit/master/install-help.md).
 
-For help installing these, click [here](https://github.com/pdrew32/mcirsed/edit/master/install-help.md).
-
-For an example of how the script is run, see example_fit_mcirsed.py and example_data.py.
+For an example of how to use the code, run example_data.py to generate data for two galaxies and run the script example_fit_mcirsed.py.
 
 Parameters:  
 -----------  
