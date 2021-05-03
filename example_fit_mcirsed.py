@@ -17,7 +17,7 @@ Example script for fitting with MCIRSED
 
 # True for new file or to overwrite an old one. False to append new fits to an old file. 
 # NOTE: new runs must be run with freshRun = True
-freshRun = False 
+freshRun = True 
 
 # do you want to see a plot of the output?
 plotOutput = True 
