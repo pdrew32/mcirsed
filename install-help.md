@@ -1,6 +1,6 @@
 # Install Tutorial
 
-For the best results it is recommended that you run the MCIRSED package in a new conda environment unless you want to tinker with the packages yourself. Below are the steps I followed to run MCIRSED on a fresh conda environment in May 2021.
+For the best results it is recommended that you run the MCIRSED package in a new conda environment unless you want to tinker with your Python package versions. Below are the steps I followed to run MCIRSED on a fresh conda environment in May 2021.
 
 1) Install anaconda if not done already (https://docs.anaconda.com/anaconda/install/#installation)
 2) Create a new conda environment with python 3.7
