@@ -26,41 +26,41 @@ Parameters that may be free or held fixed:
 ## Outputs:
 The code will output a pandas dataframe save as a .pkl file containing, in this order:
 
-- redshift
-- value alpha was fixed to or None if free parameter
-- value beta was fixed to or None if free parameter
-- value lambda_0 (W0) was fixed to or None if free parameter
-- how many tuning steps the sampling was run with
-- number of MC samples
-- whether CMB was corrected for
-- norm1 parameter for each MC sample
-- dust temperature for each MC sample
-- alpha for each MC sample
-- beta for each MC sample
-- lambda_0 (w0) for each MC sample
-- log LIR for each MC sample
-- peak wavelength for each MC sample
-- median norm1 across all samples
-- median tdust
-- median alpha
-- median beta
-- median lambda_0 (w0)
-- median log LIR
-- median peak wavelength
-- 16th percentile for norm1 samples
-- 16th tdust
-- 16th alpha
-- 16th beta
-- 16th lambda_0 (w0)
-- 16th log LIR
-- 16th peak wavelength
-- 84th percentile for norm1 samples
-- 84th tdust
-- 84th alpha
-- 84th beta
-- 84th lambda_0 (w0)
-- 84th log LIR
-- 84th peak wavelength
-- wavelengths of data used for each galaxy in microns
-- fluxes in mJy used for each galaxy in microns
-- errors in mJy used for each galaxy in microns
+- ```z```: redshift
+- ```fixAlphaValue```: value alpha was fixed to or None if free parameter
+- ```fixBetaValue```: value beta was fixed to or None if free parameter
+- ```fixW0Value```: value lambda_0 (W0) was fixed to or None if free parameter
+- ```tune```: how many tuning steps the sampling was run with
+- ```MCSamples```: number of MC samples
+- ```CMBCorrection```: whether CMB was corrected for
+- ```trace_Norm1```: norm1 parameter for each MC sample
+- ```trace_Tdust```: dust temperature for each MC sample
+- ```trace_alpha```: alpha for each MC sample
+- ```trace_beta```: beta for each MC sample
+- ```trace_w0```: lambda_0 (w0) for each MC sample
+- ```trace_LIR```: log LIR for each MC sample
+- ```trace_lPeak```: peak wavelength for each MC sample
+- ```median_Norm1```: median norm1 across all samples
+- ```median_Tdust```: median tdust
+- ```median_alpha```: median alpha
+- ```median_beta```: median beta
+- ```median_w0```: median lambda_0 (w0)
+- ```median_LIR```: median log LIR
+- ```median_lPeak```: median peak wavelength
+- ```Norm1_16th```: 16th percentile for norm1 samples
+- ```Tdust_16th```: 16th tdust
+- ```alpha_16th```: 16th alpha
+- ```beta_16th```: 16th beta
+- ```w0_16th```: 16th lambda_0 (w0)
+- ```LIR_16th```: 16th log LIR
+- ```lPeak_16th```: 16th peak wavelength
+- ```Norm1_84th```: 84th percentile for norm1 samples
+- ```Tdust_84th```: 84th tdust
+- ```alpha_84th```: 84th alpha
+- ```beta_84th```: 84th beta
+- ```w0_84th```: 84th lambda_0 (w0)
+- ```LIR_84th```: 84th log LIR
+- ```lPeak_84th```: 84th peak wavelength
+- ```dataWave```: wavelengths of data used for each galaxy in microns
+- ```dataFlux```: fluxes in mJy used for each galaxy in microns
+- ```dataErr```: errors in mJy used for each galaxy in microns
