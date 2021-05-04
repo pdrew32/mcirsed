@@ -15,3 +15,8 @@ Newer versions may be compatible in the future but for now this is the latest st
 7) Install libpython: ```conda install libpython```
 8) Downgrade arviz to version 0.11.1: ```conda install arviz=0.11.1```
 9) Install corner.py for corner plots: ```pip install corner```
+
+# Verifying Installation
+
+1) run example_data.py to generate data for two galaxies
+2) run example_fit_mcirsed.py. If the code finishes running and plots of the SED corner plots show up the installation was successful.
