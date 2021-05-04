@@ -13,4 +13,4 @@ As of the time of writing, the main Python package we use for MCMC fitting, pymc
 - m2w64-toolchain (if using Windows)
 
 ## Getting Started:
-For an example of how to use the code, run example_data.py to generate data for two galaxies, read the comments in example_fit_mcirsed.py and run example_fit_mcirsed.py.
+For an example of how to use the code, run example_data.py to generate data for two galaxies. Next run example_fit_mcirsed.py to see an example. There are instructions in the comments of this script that will guide you through using the script. We recommend you save a copy of example_fit_mcirsed.py before editing the inputs. 
