@@ -13,11 +13,10 @@ Example script for fitting with MCIRSED
 '''
 
 ###############################################################################
-# NOTE: you should only need to edit lines between these comment bars (the line aboove)
+# NOTE: you should only need to edit lines between these comment bars (the line above)
 
 # True for new file or to overwrite an old one. False to append new fits to an old file. 
-# NOTE: new runs must be run with freshRun = True
-freshRun = True 
+freshRun = True # NOTE: new runs must be run with freshRun = True
 
 # do you want to see a plot of the output?
 plotOutput = True 
