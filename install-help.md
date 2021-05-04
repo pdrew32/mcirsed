@@ -19,4 +19,4 @@ Newer versions may be compatible in the future but for now this is the latest st
 # Verifying Installation
 
 1) run example_data.py to generate data for two galaxies
-2) run example_fit_mcirsed.py. If the code finishes running and plots of the SED corner plots show up the installation was successful.
+2) run example_fit_mcirsed.py first without changing anything. If the code finishes running and plots of the SED corner plots show up the installation was successful.
