@@ -16,7 +16,12 @@ As of the time of writing, the main Python package we use for MCMC fitting, pymc
 For an example of how to use the code, run example_data.py to generate data for two galaxies. Next run example_fit_mcirsed.py. There are instructions in the comments of this script that will guide you through working with. We recommend you save a copy of example_fit_mcirsed.py before editing the inputs. 
 
 ## Inputs:
+Required inputs to the code are wavelengths of observations in microns, flux densities and uncertainties in mJy, and a redshift.
 
+Parameters that may be free or held fixed: 
+- Alpha (power law slope)
+- Beta (dust emissivity)
+- Lambda_0 (wavelength where dust opacity = 1. Referred to in the code as w0)
 
 ## Outputs:
 The code will output a pandas dataframe save as a .pkl file containing, in this order:
