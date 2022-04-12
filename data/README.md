@@ -86,3 +86,92 @@ tdust_16th: 16th percentile of dust temperature
 tdust_84th: 84th percentile of dust temperature
 
 sigma_clipped: Whether or not the galaxy was sigma clipped out of the fitting procedure described in section 4.1 of Drew and Casey 2022
+
+
+### COSMOS sample data columns
+
+z: redshift
+
+F24: 24um flux density in mJy
+
+F70: 70um flux density in mJy
+
+F100: 100um flux density in mJy
+
+F160: 160um flux density in mJy
+
+F250: 250um flux density in mJy
+
+F350: 350um flux density in mJy
+
+F500: 500um flux density in mJy
+
+F850: 850um flux density in mJy
+
+F1point1mm: 1100um flux density in mJy
+
+F1point2mm: 1200um flux density in mJy
+
+E24: Uncertainty in flux density at 24um in mJy
+
+E70: Uncertainty in flux density at 70um in mJy
+
+E100: Uncertainty in flux density at 100um in mJy
+
+E160: Uncertainty in flux density at 160um in mJy
+
+E250: Uncertainty in flux density at 250um in mJy
+
+E350: Uncertainty in flux density at 350um in mJy
+
+E500: Uncertainty in flux density at 500um in mJy
+
+E850: Uncertainty in flux density at 850um in mJy
+
+E1point1mm: Uncertainty in flux density at 1100um in mJy
+
+E1point2mm: Uncertainty in flux density at 1200um in mJy
+
+RA24: RA of 24um emission
+
+DEC24: Dec of 24um emission
+
+
+### COSMOS sample fit parameter columns
+These are the same columns as IRAS Sample Fit Parameter Columns above, without the sigma_clipped column.
+
+### HATLAS sample data columns
+
+z: redshift
+
+F22: flux density at 22um in mJy
+
+F100: flux density at 100um in mJy
+
+F160: flux density at 160um in mJy
+
+F250: flux density at 250um in mJy
+
+F350: flux density at 350um in mJy
+
+F500: flux density at 500um in mJy
+
+E22: Uncertainty in flux density at 22um in mJy
+
+E100: Uncertainty in flux density at 100um in mJy
+
+E160: Uncertainty in flux density at 160um in mJy
+
+E250: Uncertainty in flux density at 250um in mJy
+
+E350: Uncertainty in flux density at 350um in mJy
+
+E500: Uncertainty in flux density at 500um in mJy
+
+ra:
+
+dec:
+
+
+### HATLAS sample fit parameter columns
+These are the same columns as IRAS Sample Fit Parameter Columns above, without the sigma_clipped column.
