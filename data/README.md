@@ -1,4 +1,5 @@
 ## Readme
+For each of the three samples from Drew and Casey 2022, IRAS, HATLAS, and COSMOS, there are two files. One, called [x]_sample_data.csv contains redshifts, flux densities, uncertainties on flux densities, and positions. The other file, called [x]_sample_fit_params.csv contains redshifts, IR luminosities, peak wavelengths, alpha, beta, dust temperature measurements, and their uncertainties. See below for a short description of each column. The IRAS_sample_fit_params.csv file has one additional column called sigma_clipped. This is 1 if the galaxy was sigma clipped during the fitting procedure described in section 4.1 of Drew and Casey 2022 or else it is nan.
 
 ### IRAS Sample Data Columns
 z: redshift
