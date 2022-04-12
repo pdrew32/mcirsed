@@ -168,9 +168,9 @@ E350: Uncertainty in flux density at 350um in mJy
 
 E500: Uncertainty in flux density at 500um in mJy
 
-ra:
+ra: HATLAS ra
 
-dec:
+dec: HATLAS dec
 
 
 ### HATLAS sample fit parameter columns
