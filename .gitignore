@@ -1,5 +1,6 @@
 *.pyc
 *_
+*.xlsx
 
 # OS generated files #
 ######################

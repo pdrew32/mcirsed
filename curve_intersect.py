@@ -96,19 +96,3 @@ def intersection(x1, y1, x2, y2):
     xy0 = xy0.T
     return xy0[:, 0], xy0[:, 1]
 
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    # a piece of a prolate cycloid, and am going to find
-    a, b = 1, 2
-    phi = np.linspace(3, 10, 100)
-    x1 = a*phi - b*np.sin(phi)
-    y1 = a - b*np.cos(phi)
-
-    x2 = phi
-    y2 = np.sin(phi)+2
-    x, y = intersection(x1, y1, x2, y2)
-    plt.plot(x1, y1, c='r')
-    plt.plot(x2, y2, c='g')
-    plt.plot(x, y, '*k')
-    plt.show()
